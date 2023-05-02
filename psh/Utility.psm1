@@ -9,3 +9,12 @@ function AsAdmin {
         [Security.Principal.WindowsBuiltInRole]::Administrator
         )
 }
+
+function VpnConnected {
+    foreach ($VpnConn in (Get-VpnConnection)) {
+        if ($VpnConn.ConnectionStatus -eq "Connected") {
+            return $true
+        }
+    }
+    $false
+}
