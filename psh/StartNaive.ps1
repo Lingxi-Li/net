@@ -6,7 +6,13 @@ $CfgPath = "naive\config.json"
 Require (Test-Path $AppPath -PathType Leaf) "'$($AppPath)' not found"
 Require (Test-Path $CfgPath -PathType Leaf) "'$($CfgPath)' not found"
 
-$Listen = (Get-Content $CfgPath -Raw | ConvertFrom-Json).listen.Replace("0.0.0.0", "localhost")
+$Cfg = Get-Content $CfgPath -Raw | ConvertFrom-Json -AsHashtable
+$Listen = $Cfg["listen"].Replace("0.0.0.0", "localhost")
+$TlsKeyLogPath = $Cfg["ssl-key-log-file"]
+
+if ($TlsKeyLogPath) {
+    Remove-Item -Path $TlsKeyLogPath -Force -ErrorAction SilentlyContinue
+}
 
 try {
     $Process = Start-Process -FilePath $AppPath -ArgumentList $CfgPath -PassThru
