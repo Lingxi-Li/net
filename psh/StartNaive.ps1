@@ -8,10 +8,10 @@ Require (Test-Path $CfgPath -PathType Leaf) "'$($CfgPath)' not found"
 
 $Listen = (Get-Content $CfgPath -Raw | ConvertFrom-Json).listen.Replace("0.0.0.0", "localhost")
 
-EnableSysProxy $Listen "<local>"
 try {
-    $Process = Start-Process -FilePath $AppPath -ArgumentList $CfgPath -WindowStyle Minimized -PassThru
+    $Process = Start-Process -FilePath $AppPath -ArgumentList $CfgPath -PassThru
     Start-Sleep -Seconds 1
+    EnableSysProxy $Listen "<local>"
 
     $Repo = "github.com/klzgrad/naiveproxy"
     $Feed = "https://$($Repo)/releases/latest"

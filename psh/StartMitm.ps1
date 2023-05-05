@@ -18,16 +18,12 @@ $Transparent = $Args.ToLower().Contains("transparent")
 if ($Transparent) {
     Require (AsAdmin) "Require admin privilege"
     DisableSysProxy
+    Start-Process -FilePath "mitmproxy" -ArgumentList $Args -Wait
 }
 else {
+    $Process = Start-Process -FilePath "mitmproxy" -ArgumentList $Args -PassThru
+    Start-Sleep -Seconds 1
     EnableSysProxy "http://localhost:8080" "<local>"
-}
-
-Start-Process -FilePath "mitmproxy" -ArgumentList $Args -Wait
-
-if ($Transparent) {
-    # no-op
-}
-else {
+    Wait-Process -Id $Process.Id
     DisableSysProxy
 }
