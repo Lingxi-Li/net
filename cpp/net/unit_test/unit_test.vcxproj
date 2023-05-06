@@ -68,7 +68,8 @@
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\*" />
+    <ClInclude Include="..\include\field_view.hpp" />
+    <ClInclude Include="..\include\ipv4_view.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
