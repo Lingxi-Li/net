@@ -57,9 +57,9 @@ inline void write_uint_big_endian(byte_t* data, std::uint8_t len, uint_t uint) n
 
 inline void (* write_uint)(byte_t* data, std::uint8_t len, uint_t uint) noexcept;
 
-struct init_parse_write_uint {
+inline struct init_parse_write_uint {
     init_parse_write_uint() noexcept {
-        uint_t v = 1;
+        auto v = 1u;
         if (*reinterpret_cast<byte_t const*>(&v)) {
             parse_uint = parse_uint_little_endian;
             write_uint = write_uint_little_endian;

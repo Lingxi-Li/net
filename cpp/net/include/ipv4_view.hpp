@@ -42,10 +42,6 @@ namespace net {
 ////////////////////////////////////////
 
 struct ipv4_view {
-    ipv4_view(void* data) noexcept
-        : data(static_cast<byte_t*>(data)) {
-    }
-
     byte_t* data;
     
     uint_view_bit<0xf0> version() const noexcept {
