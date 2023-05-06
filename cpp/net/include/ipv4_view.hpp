@@ -23,11 +23,11 @@ inline std::ostream& operator<<(std::ostream& os, ipv4_addr_view addrv) {
 
 template <>
 struct std::formatter<net::ipv4_addr_view> {
-    constexpr auto parse(format_parse_context& ctx) {
+    constexpr auto parse(format_parse_context& ctx) const {
         return ctx.begin();
     }
 
-    auto format(net::ipv4_addr_view view, format_context& ctx) {
+    auto format(net::ipv4_addr_view view, format_context& ctx) const {
         return format_to(ctx.out(), "{}.{}.{}.{}"
             , net::uint_t(view[0])
             , net::uint_t(view[1])
