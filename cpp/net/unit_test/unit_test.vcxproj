@@ -66,11 +66,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="field_view.cpp" />
+    <ClCompile Include="ipv4_view.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\field_view.hpp" />
     <ClInclude Include="..\include\ipv4_view.hpp" />
+    <ClInclude Include="sample_packet.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>
