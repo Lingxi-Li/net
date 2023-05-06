@@ -9,7 +9,7 @@ namespace net {
 struct ipv4_addr_view {
     byte_t* data;
 
-    byte_t& operator[](std::size_t i) noexcept {
+    byte_t& operator[](std::size_t i) const noexcept {
         return data[i];
     }
 };
@@ -26,6 +26,7 @@ struct std::formatter<net::ipv4_addr_view> {
     constexpr auto parse(format_parse_context& ctx) {
         return ctx.begin();
     }
+
     auto format(net::ipv4_addr_view view, format_context& ctx) {
         return format_to(ctx.out(), "{}.{}.{}.{}"
             , net::uint_t(view[0])
@@ -47,27 +48,27 @@ struct ipv4_view {
 
     byte_t* data;
     
-    uint_view_bit<0xf0> version() noexcept {
+    uint_view_bit<0xf0> version() const noexcept {
         return { data };
     }
 
-    uint_view_bit<0x0f> header_len() noexcept {
+    uint_view_bit<0x0f> header_len() const noexcept {
         return { data };
     }
 
-    uint_view<2> total_len() noexcept {
+    uint_view<2> total_len() const noexcept {
         return { data + 2 };
     }
 
-    uint_view<1> protocol() noexcept {
+    uint_view<1> protocol() const noexcept {
         return { data + 9 };
     }
 
-    ipv4_addr_view src_addr() noexcept {
+    ipv4_addr_view src_addr() const noexcept {
         return { data + 12 };
     }
 
-    ipv4_addr_view dst_addr() noexcept {
+    ipv4_addr_view dst_addr() const noexcept {
         return { data + 16 };
     }
 };

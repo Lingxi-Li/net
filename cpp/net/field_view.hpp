@@ -82,7 +82,7 @@ struct uint_view {
         return impl::parse_uint(data, len);
     }
 
-    void operator=(uint_t uint) noexcept {
+    void operator=(uint_t uint) const noexcept {
         impl::write_uint(data, len, uint);
     }
 };
@@ -114,7 +114,7 @@ constexpr std::uint8_t num_trailing_zeros() noexcept {
     return num;
 }
 
-}
+} // namespace impl
 
 template <byte_t mask, std::uint8_t shf = impl::num_trailing_zeros<mask>()>
 struct uint_view_bit {
@@ -124,7 +124,7 @@ struct uint_view_bit {
         return (*data & mask) >> shf;
     }
 
-    void operator=(uint_t uint) noexcept {
+    void operator=(uint_t uint) const noexcept {
         byte_t v = (uint << shf) & mask;
         *data = (*data & ~mask) | v;
     }
@@ -138,7 +138,7 @@ std::ostream& operator<<(std::ostream& os, uint_view_bit<mask> uintv) {
 } // namespace net
 
 template <net::byte_t mask>
-struct std::formatter<net::uint_view_bit<mask>> : formatter<net::uint_t> {
+struct std::formatter<net::uint_view_bit<mask>>: formatter<net::uint_t> {
     auto format(net::uint_view_bit<mask> view, format_context& ctx) {
         return formatter<net::uint_t>::format(net::uint_t(view), ctx);
     }
