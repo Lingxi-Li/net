@@ -33,8 +33,8 @@ TEST_CASE("ipv4_addr_view") {
 
 TEST_CASE("ipv4_view") {
     vector<byte_t> vec(
-        sample_tcp_syn,
-        sample_tcp_syn + sizeof(sample_tcp_syn)
+        sample_ipv4_tcp_syn,
+        sample_ipv4_tcp_syn + sizeof(sample_ipv4_tcp_syn)
     );
     ipv4_view view{vec.data()};
 
