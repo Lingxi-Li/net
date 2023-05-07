@@ -48,7 +48,7 @@ finally {
 }
 
 if ($Update) {
-    $null = (New-Object -ComObject Wscript.Shell).Popup("About to update naive...", 0, "Auto Updater")
+    MessageBox "Auto Updater" "About to update naive..."
     Expand-Archive -Path $ZipPath -Force
     $AssetPath = "naive\$($AssetName)"
     Copy-Item -Path "$($AssetPath)\naive.exe" -Destination $AppPath -Force
