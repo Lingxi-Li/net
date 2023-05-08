@@ -52,6 +52,26 @@ struct ipv4_view {
         return { data };
     }
 
+    uint_view_bit<0xfc> diffserv() const noexcept {
+        return { data + 1 };
+    }
+
+    uint_view_bit<0x03> ecn() const noexcept {
+        return { data + 1 };
+    }
+
+    uint_view<2> id() const noexcept {
+        return { data + 4 };
+    }
+
+    bit_view<0x40> no_frag() const noexcept {
+        return { data + 6 };
+    }
+
+    bit_view<0x20> more_frag() const noexcept {
+        return { data + 6 };
+    }
+
     uint_view<2> total_len() const noexcept {
         return { data + 2 };
     }

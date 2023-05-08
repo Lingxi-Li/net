@@ -184,3 +184,37 @@ TEST_CASE("uint_view_bit") {
         REQUIRE(data == 0xf5);
     }
 }
+
+TEST_CASE("bit_view") {
+    ostringstream ss;
+    byte_t data = 0x55;
+
+    SECTION("0x08, 0x55") {
+        bit_view<0x08> view{&data};
+        REQUIRE(view == 0);
+        ss << view;
+        REQUIRE(ss.str() == "0");
+        REQUIRE(format("{}", view) == "0");
+        view = 1;
+        REQUIRE(data == 0x5du);
+        REQUIRE(view == 1);
+        ss.str("");
+        ss << view;
+        REQUIRE(ss.str() == "1");
+        REQUIRE(format("{}", view) == "1");
+    }
+    SECTION("0x40, 0x55") {
+        bit_view<0x40> view{&data};
+        REQUIRE(view == 1);
+        ss << view;
+        REQUIRE(ss.str() == "1");
+        REQUIRE(format("{}", view) == "1");
+        view = 0;
+        REQUIRE(data == 0x15u);
+        REQUIRE(view == 0);
+        ss.str("");
+        ss << view;
+        REQUIRE(ss.str() == "0");
+        REQUIRE(format("{}", view) == "0");
+    }
+}

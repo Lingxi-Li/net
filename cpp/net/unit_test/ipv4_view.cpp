@@ -40,6 +40,11 @@ TEST_CASE("ipv4_view") {
 
     REQUIRE(view.version() == 4);
     REQUIRE(view.header_len() == 5);
+    REQUIRE(view.diffserv() == 0);
+    REQUIRE(view.ecn() == 0);
+    REQUIRE(view.id() == 0xde65u);
+    REQUIRE(view.no_frag() == 1);
+    REQUIRE(view.more_frag() == 0);
     REQUIRE(view.total_len() == 52);
     REQUIRE(view.protocol() == 6);
     REQUIRE(format("{}", view.src_addr()) == "192.168.2.103");

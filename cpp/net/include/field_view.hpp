@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cstring>
 
+#include <bitset>
 #include <ostream>
 #include <format>
 
@@ -141,5 +142,51 @@ template <net::byte_t mask>
 struct std::formatter<net::uint_view_bit<mask>>: formatter<net::uint_t> {
     auto format(net::uint_view_bit<mask> view, format_context& ctx) {
         return formatter<net::uint_t>::format(net::uint_t(view), ctx);
+    }
+};
+
+////////////////////////////////////////
+
+namespace net {
+
+template <byte_t mask>
+struct bit_view {
+    static_assert(
+        mask == 0x01u || mask == 0x02u || mask == 0x04u || mask == 0x08u ||
+        mask == 0x10u || mask == 0x20u || mask == 0x40u || mask == 0x80u
+    );
+    byte_t* data;
+
+    operator bool() const noexcept {
+        return *data & mask;
+    }
+
+    void operator=(bool flag) const noexcept {
+        if (flag) {
+            *data |= mask;
+        }
+        else {
+            *data &= ~mask;
+        }
+    }
+};
+
+template <byte_t mask> inline
+std::ostream& operator<<(std::ostream& os, bit_view<mask> view) {
+    return os << (view ? '1' : '0');
+}
+
+} // namespace net
+
+template <net::byte_t mask>
+struct std::formatter<net::bit_view<mask>> {
+    constexpr auto parse(format_parse_context& ctx) const {
+        return ctx.begin();
+    }
+
+    auto format(net::bit_view<mask> view, format_context& ctx) const {
+        return view
+            ? format_to(ctx.out(), "1")
+            : format_to(ctx.out(), "0");
     }
 };
