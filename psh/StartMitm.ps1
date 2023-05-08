@@ -7,6 +7,7 @@ Import-Module -Name .\psh\Utility.psm1
 $TlsKeyLogPath = $env:MITMPROXY_SSLKEYLOGFILE
 if ($TlsKeyLogPath) {
     Remove-Item -Path $TlsKeyLogPath -Force -ErrorAction SilentlyContinue
+    $null = New-Item -Path $TlsKeyLogPath -ItemType File -Force -ErrorAction Stop
 }
 
 "Args: $($Args)"

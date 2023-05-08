@@ -12,6 +12,7 @@ $TlsKeyLogPath = $Cfg["ssl-key-log-file"]
 
 if ($TlsKeyLogPath) {
     Remove-Item -Path $TlsKeyLogPath -Force -ErrorAction SilentlyContinue
+    $null = New-Item -Path $TlsKeyLogPath -ItemType File -Force -ErrorAction Stop
 }
 
 try {
