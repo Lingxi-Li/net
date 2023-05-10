@@ -1,220 +1,86 @@
 #include "field_view.hpp"
 #include "catch.hpp"
 
-#include <array>
-#include <vector>
-#include <sstream>
+#include "test_utility.hpp"
 
-using namespace net;
-using namespace impl;
 using namespace std;
-
-TEST_CASE("round_trip_uint_little_endian", "[impl]") {
-    constexpr auto len = 3;
-
-    SECTION("{ 0, 1, 1 }")
-    {
-        vector<byte_t> const vec{ 0, 1, 1, 0, 0 };
-        auto uint = parse_uint_little_endian(vec.data(), len);
-        auto data = reinterpret_cast<byte_t const*>(&uint);
-        REQUIRE((
-            data[0] == 1 &&
-            data[1] == 1 &&
-            data[2] == 0 &&
-            data[3] == 0 &&
-            data[4] == 0 &&
-            data[5] == 0 &&
-            data[6] == 0 &&
-            data[7] == 0
-        ));
-        vector<byte_t> vec2(vec.size());
-        write_uint_little_endian(vec2.data(), len, uint);
-        REQUIRE(vec2 == vec);
-    }
-    SECTION("{ 1, 1, 0 }")
-    {
-        vector<byte_t> const vec{ 1, 1, 0, 0, 0 };
-        auto uint = parse_uint_little_endian(vec.data(), len);
-        auto data = reinterpret_cast<byte_t const*>(&uint);
-        REQUIRE((
-            data[0] == 0 &&
-            data[1] == 1 &&
-            data[2] == 1 &&
-            data[3] == 0 &&
-            data[4] == 0 &&
-            data[5] == 0 &&
-            data[6] == 0 &&
-            data[7] == 0
-        ));
-        vector<byte_t> vec2(vec.size());
-        write_uint_little_endian(vec2.data(), len, uint);
-        REQUIRE(vec2 == vec);
-    }
-}
-
-TEST_CASE("round_trip_big_endian", "[impl]") {
-    constexpr auto len = 3;
-
-    SECTION("{ 0, 1, 1 }")
-    {
-        vector<byte_t> const vec{ 0, 1, 1, 0, 0 };
-        auto uint = parse_uint_big_endian(vec.data(), len);
-        auto data = reinterpret_cast<byte_t const*>(&uint);
-        REQUIRE((
-            data[0] == 0 &&
-            data[1] == 0 &&
-            data[2] == 0 &&
-            data[3] == 0 &&
-            data[4] == 0 &&
-            data[5] == 0 &&
-            data[6] == 1 &&
-            data[7] == 1
-        ));
-        vector<byte_t> vec2(vec.size());
-        write_uint_big_endian(vec2.data(), len, uint);
-        REQUIRE(vec2 == vec);
-    }
-    SECTION("{ 1, 1, 0 }")
-    {
-        vector<byte_t> const vec{ 1, 1, 0, 0, 0 };
-        auto uint = parse_uint_big_endian(vec.data(), len);
-        auto data = reinterpret_cast<byte_t const*>(&uint);
-        REQUIRE((
-            data[0] == 0 &&
-            data[1] == 0 &&
-            data[2] == 0 &&
-            data[3] == 0 &&
-            data[4] == 0 &&
-            data[5] == 1 &&
-            data[6] == 1 &&
-            data[7] == 0
-        ));
-        vector<byte_t> vec2(vec.size());
-        write_uint_big_endian(vec2.data(), len, uint);
-        REQUIRE(vec2 == vec);
-    }
-}
-
-TEST_CASE("init_parse_write_uint", "[impl]") {
-    auto v = 1u;
-    bool host_is_little_endian = *reinterpret_cast<uint8_t*>(&v);
-    if (host_is_little_endian) {
-        REQUIRE(parse_uint == &parse_uint_little_endian);
-        REQUIRE(write_uint == &write_uint_little_endian);
-    }
-    else {
-        REQUIRE(parse_uint == &parse_uint_big_endian);
-        REQUIRE(write_uint == &write_uint_big_endian);
-    }
-}
+using namespace net;
 
 TEST_CASE("uint_view") {
-    ostringstream ss;
-    constexpr auto len = 3;
-   
-    SECTION("{ 0, 1, 1 }")
-    {
-        array<byte_t, 5> arr{ 0, 1, 1, 0, 1 };
-        uint_view<len> view{arr.data()};
-        REQUIRE(view == 257);
-        ss << view;
-        REQUIRE(ss.str() == "257");
-        REQUIRE(format("{}", view) == "257");
-        view = 65536;
-        REQUIRE((
-            arr[0] == 1 &&
-            arr[1] == 0 &&
-            arr[2] == 0 &&
-            arr[3] == 0 &&
-            arr[4] == 1
-        ));
+    SECTION("len 2") {
+        constexpr auto len = 2u;
+        SECTION("data 0xa55a") {
+            byte_vec vec{ 0xa5, 0x5a };
+            SECTION("hishf 0, loshf 0") {
+                uint_view<len> view{vec.data()};
+                REQUIRE(view == 0xa55a);
+                REQUIRE(str_via_ostream(view) == "42330");
+                REQUIRE(str_via_format(view) == "42330");
+                view = 0x5aa5;
+                REQUIRE(vec == byte_vec{ 0x5a, 0xa5 });
+                REQUIRE(view == 0x5aa5);
+            }
+            SECTION("hishf 3, loshf 7") {
+                uint_view<len, 3, 7> view{vec.data()};
+                REQUIRE(view == 0xa);
+                view = 0xffff;
+                REQUIRE(vec == byte_vec{ 0xbf, 0xda });
+                REQUIRE(view == 63);
+            }
+        }
     }
-    SECTION("{ 1, 1, 0 }")
-    {
-        array<byte_t, 5> arr{ 1, 1, 0, 0, 1 };
-        uint_view<len> view{arr.data()};
-        REQUIRE(view == 65792);
-        ss << view;
-        REQUIRE(ss.str() == "65792");
-        REQUIRE(format("{}", view) == "65792");
-        view = 1;
-        REQUIRE((
-            arr[0] == 0 &&
-            arr[1] == 0 &&
-            arr[2] == 1 &&
-            arr[3] == 0 &&
-            arr[4] == 1
-        ));
+    SECTION("len 4") {
+        constexpr unsigned len = 4u;
+        SECTION("data 0xa500ff5a") {
+            byte_vec vec{ 0xa5, 0x00, 0xff, 0x5a };
+            SECTION("hishf 0, loshf 0") {
+                uint_view<len> view{vec.data()};
+                REQUIRE(view == 0xa500ff5a);
+                view = 0x5aff00a5;
+                REQUIRE(vec == byte_vec{ 0x5a, 0xff, 0x00, 0xa5 });
+                REQUIRE(view == 0x5aff00a5);
+            }
+            SECTION("hishf 3, loshf 7") {
+                uint_view<len, 3, 7> view{vec.data()};
+                REQUIRE(view == 0xa01fe);
+                view = 0x1f54ab5;
+                REQUIRE(vec == byte_vec{ 0xba, 0xa5, 0x5a, 0xda });
+                REQUIRE(view == 0x354ab5);
+            }
+        }
     }
-}
-
-TEST_CASE("num_trailing_zeros", "[impl]") {
-    // REQUIRE(num_trailing_zeros<0>() == 8);
-    REQUIRE(num_trailing_zeros<0x03>() == 0);
-    REQUIRE(num_trailing_zeros<0x18>() == 3);
-    REQUIRE(num_trailing_zeros<0x80>() == 7);
-}
-
-TEST_CASE("uint_view_bit") {
-    ostringstream ss;
-    byte_t data = 0x55;
-
-    SECTION("0x07, 0x55") {
-        uint_view_bit<0x07> view{&data};
-        REQUIRE(view == 5);
-        ss << view;
-        REQUIRE(ss.str() == "5");
-        REQUIRE(format("{}", view) == "5");
-        view = 0xff;
-        REQUIRE(data == 0x57);
-    }
-    SECTION("0x3c, 0x55") {
-        uint_view_bit<0x3c> view{&data};
-        REQUIRE(view == 5);
-        view = 0xff;
-        REQUIRE(data == 0x7d);
-    }
-    SECTION("0xe0, 0x55") {
-        uint_view_bit<0xe0> view{&data};
-        REQUIRE(view == 2);
-        ss << view;
-        REQUIRE(ss.str() == "2");
-        REQUIRE(format("{}", view) == "2");
-        view = 0xff;
-        REQUIRE(data == 0xf5);
-    }
-}
-
-TEST_CASE("bit_view") {
-    ostringstream ss;
-    byte_t data = 0x55;
-
-    SECTION("0x08, 0x55") {
-        bit_view<0x08> view{&data};
-        REQUIRE(view == 0);
-        ss << view;
-        REQUIRE(ss.str() == "0");
-        REQUIRE(format("{}", view) == "0");
-        view = 1;
-        REQUIRE(data == 0x5du);
-        REQUIRE(view == 1);
-        ss.str("");
-        ss << view;
-        REQUIRE(ss.str() == "1");
-        REQUIRE(format("{}", view) == "1");
-    }
-    SECTION("0x40, 0x55") {
-        bit_view<0x40> view{&data};
-        REQUIRE(view == 1);
-        ss << view;
-        REQUIRE(ss.str() == "1");
-        REQUIRE(format("{}", view) == "1");
-        view = 0;
-        REQUIRE(data == 0x15u);
-        REQUIRE(view == 0);
-        ss.str("");
-        ss << view;
-        REQUIRE(ss.str() == "0");
-        REQUIRE(format("{}", view) == "0");
+    SECTION("len 1") {
+        constexpr auto len = 1u;
+        SECTION("0xa5") {
+            byte_t data = 0xa5;
+            SECTION("hishf 0, loshf 0") {
+                uint_view<len> view{&data};
+                REQUIRE(view == 0xa5);
+                view = 0x5a;
+                REQUIRE(data == 0x5a);
+                REQUIRE(view == 0x5a);
+            }
+            SECTION("hishf 2, loshf 3") {
+                uint_view<len, 2, 3> view{&data};
+                REQUIRE(view == 0x4);
+                view = 0x1b;
+                REQUIRE(data == 0x9d);
+                REQUIRE(view == 0x3);
+            }
+            SECTION("hishf 1, loshf 6") {
+                uint_view<len, 1, 6> view{&data};
+                REQUIRE(view == 0);
+                view = 0xff;
+                REQUIRE(data == 0xe5);
+                REQUIRE(view == 1);
+            }
+            SECTION("bit_view") {
+                bit_view<1> view{&data};
+                REQUIRE(view == 0);
+                view = 0xff;
+                REQUIRE(data == 0xe5);
+                REQUIRE(view == 1);
+            }
+        }
     }
 }

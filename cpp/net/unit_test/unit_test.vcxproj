@@ -73,6 +73,7 @@
     <ClInclude Include="..\include\field_view.hpp" />
     <ClInclude Include="..\include\ipv4_view.hpp" />
     <ClInclude Include="sample_packet.hpp" />
+    <ClInclude Include="test_utility.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

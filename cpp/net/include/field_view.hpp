@@ -1,10 +1,9 @@
 #pragma once
 
-#include <cstddef>
 #include <cstdint>
 #include <cstring>
 
-#include <bitset>
+#include <bit>
 #include <ostream>
 #include <format>
 
@@ -13,180 +12,133 @@ namespace net {
 using byte_t = std::uint8_t;
 using uint_t = std::uint64_t;
 
-namespace impl {
+static_assert(
+    std::endian::native == std::endian::little ||
+    std::endian::native == std::endian::big
+);
 
-inline uint_t parse_uint_little_endian(byte_t const* data, std::uint8_t len) noexcept {
-    uint_t uint{};
-    auto dst = reinterpret_cast<byte_t*>(&uint);
-    auto src = data + (len - 1);
-    while (true) {
-        *dst = *src;
-        if (src == data) break;
-        --src;
-        ++dst;
-    }
-    return uint;
-}
+// Network byte order (big-endian)
+// 
+//  +------------+------+------------+
+//  | hishf bits | uint | loshf bits |
+//  ^------------+------+------------^
+//  |                                |
+// data                        (data + len) in byte
 
-inline uint_t parse_uint_big_endian(byte_t const* data, std::uint8_t len) noexcept {
-    uint_t uint{};
-    std::memcpy(
-        reinterpret_cast<byte_t*>(&uint) + (sizeof(uint_t) - len),
-        data,
-        len
-    );
-    return uint;
-}
+constexpr unsigned hishf_lead = (sizeof(unsigned) - 1) * 8;
 
-inline uint_t (* parse_uint)(byte_t const* data, std::uint8_t len) noexcept;
-
-inline void write_uint_little_endian(byte_t* data, std::uint8_t len, uint_t uint) noexcept {
-    auto src = reinterpret_cast<byte_t const*>(&uint);
-    auto dst = data + (len - 1);
-    while (true) {
-        *dst = *src;
-        if (dst == data) break;
-        ++src;
-        --dst;
-    }
-}
-
-inline void write_uint_big_endian(byte_t* data, std::uint8_t len, uint_t uint) noexcept {
-    auto src = reinterpret_cast<byte_t const*>(&uint);
-    std::memcpy(data, src + (sizeof(uint_t) - len), len);
-}
-
-inline void (* write_uint)(byte_t* data, std::uint8_t len, uint_t uint) noexcept;
-
-inline struct init_parse_write_uint {
-    init_parse_write_uint() noexcept {
-        auto v = 1u;
-        if (*reinterpret_cast<byte_t const*>(&v)) {
-            parse_uint = parse_uint_little_endian;
-            write_uint = write_uint_little_endian;
-        }
-        else {
-            parse_uint = parse_uint_big_endian;
-            write_uint = write_uint_big_endian;
-        }
-    }
-}
-init_parse_write_uint;
-
-} // namespace impl
-
-template <std::uint8_t len>
+template <unsigned len, unsigned hishf = 0, unsigned loshf = 0>
 struct uint_view {
     byte_t* data;
 
     operator uint_t() const noexcept {
-        return impl::parse_uint(data, len);
+        if constexpr (std::endian::native == std::endian::big) {
+            return parse_uint_be();
+        }
+        else {
+            return parse_uint_le();
+        }
     }
 
     void operator=(uint_t uint) const noexcept {
-        impl::write_uint(data, len, uint);
+        if constexpr (std::endian::native == std::endian::big) {
+            write_uint_be(uint);
+        }
+        else {
+            write_uint_le(uint);
+        }
+    }
+
+private:
+    static_assert(2 <= len && len <= sizeof(uint_t));
+    static_assert(hishf <= 7 && loshf <= 7);
+    constexpr static unsigned hi_uint_mask = unsigned(-1) << hishf_lead << hishf >> hishf >> hishf_lead;
+    constexpr static unsigned hi_data_mask = ~hi_uint_mask << hishf_lead >> hishf_lead;
+    constexpr static unsigned lo_uint_mask = unsigned(-1) << hishf_lead >> hishf_lead >> loshf << loshf;
+    constexpr static unsigned lo_data_mask = ~lo_uint_mask << hishf_lead >> hishf_lead;
+
+    uint_t parse_uint_le() const noexcept {
+        uint_t uint{};
+        auto dst = (byte_t*)(&uint);
+        auto src = data + (len - 1);
+        do {
+            *dst++ = *src--;
+        }
+        while (src > data);
+        *dst = *src & hi_uint_mask;
+        return uint >> loshf;
+    }
+
+    uint_t parse_uint_be() const noexcept {
+        uint_t uint{};
+        auto dst = (byte_t*)(&uint) + (sizeof(uint_t) - len);
+        auto src = data;
+        *dst++ = *src++ & hi_uint_mask;
+        std::memcpy(dst, src, len - 1);
+        return uint >> loshf;
+    }
+
+    void write_uint_le(uint_t uint) const noexcept {
+        uint <<= loshf;
+        auto dst = data + (len - 1);
+        auto src = (byte_t const*)(&uint);
+        *dst = (*dst & lo_data_mask) | (*src & lo_uint_mask);
+        --dst;
+        ++src;
+        while (dst > data) {
+            *dst-- = *src++;
+        }
+        *dst = (*dst & hi_data_mask) | (*src & hi_uint_mask);
+    }
+
+    void write_uint_be(uint_t uint) const noexcept {
+        uint <<= loshf;
+        auto dst = data;
+        auto src = (byte_t const*)(&uint) + (sizeof(uint_t) - len);
+        *dst = (*dst & hi_data_mask) | (*src & hi_uint_mask);
+        std::memcpy(++dst, ++src, len - 2);
+        dst += len - 2;
+        src += len - 2;
+        *dst = (*dst & lo_data_mask) | (*src & lo_uint_mask);
     }
 };
 
-template <std::uint8_t len> inline
-std::ostream& operator<<(std::ostream& os, uint_view<len> uintv) {
-    return os << uint_t(uintv);
-}
-
-} // namespace net
-
-template <std::uint8_t len>
-struct std::formatter<net::uint_view<len>>: formatter<net::uint_t> {
-    auto format(net::uint_view<len> view, format_context& ctx) {
-        return formatter<net::uint_t>::format(net::uint_t(view), ctx);
-    }
-};
-
-////////////////////////////////////////
-
-namespace net {
-namespace impl {
-
-template <byte_t mask>
-constexpr std::uint8_t num_trailing_zeros() noexcept {
-    static_assert(mask);
-    std::uint8_t num{};
-    while (!((mask >> num) & 1u)) ++num;
-    return num;
-}
-
-} // namespace impl
-
-template <byte_t mask, std::uint8_t shf = impl::num_trailing_zeros<mask>()>
-struct uint_view_bit {
+template <unsigned hishf, unsigned loshf>
+struct uint_view<1, hishf, loshf> {
     byte_t* data;
 
     operator uint_t() const noexcept {
-        return (*data & mask) >> shf;
+        return (*data & uint_mask) >> loshf;
     }
 
     void operator=(uint_t uint) const noexcept {
-        byte_t v = (uint << shf) & mask;
-        *data = (*data & ~mask) | v;
+        uint <<= loshf;
+        *data = (*data & data_mask) | (uint & uint_mask);
     }
+
+private:
+    static_assert(hishf <= 7 && loshf <= 7);
+    static_assert(hishf + loshf <= 7);
+    constexpr static unsigned uint_mask = unsigned(-1) << hishf_lead << hishf >> hishf >> hishf_lead >> loshf << loshf;
+    constexpr static unsigned data_mask = ~uint_mask << hishf_lead >> hishf_lead;
 };
 
-template <byte_t mask> inline
-std::ostream& operator<<(std::ostream& os, uint_view_bit<mask> uintv) {
-    return os << uint_t(uintv);
+//     _ _ _ _ _ _ _ _
+// pos 0 1 2 3 4 5 6 7
+
+template <unsigned pos>
+using bit_view = uint_view<1, pos, 7 - pos>;
+
+template <unsigned len, unsigned hishf, unsigned loshf> inline
+std::ostream& operator<<(std::ostream& os, uint_view<len, hishf, loshf> view) {
+    return os << uint_t(view);
 }
 
 } // namespace net
 
-template <net::byte_t mask>
-struct std::formatter<net::uint_view_bit<mask>>: formatter<net::uint_t> {
-    auto format(net::uint_view_bit<mask> view, format_context& ctx) {
-        return formatter<net::uint_t>::format(net::uint_t(view), ctx);
-    }
-};
-
-////////////////////////////////////////
-
-namespace net {
-
-template <byte_t mask>
-struct bit_view {
-    static_assert(
-        mask == 0x01u || mask == 0x02u || mask == 0x04u || mask == 0x08u ||
-        mask == 0x10u || mask == 0x20u || mask == 0x40u || mask == 0x80u
-    );
-    byte_t* data;
-
-    operator bool() const noexcept {
-        return *data & mask;
-    }
-
-    void operator=(bool flag) const noexcept {
-        if (flag) {
-            *data |= mask;
-        }
-        else {
-            *data &= ~mask;
-        }
-    }
-};
-
-template <byte_t mask> inline
-std::ostream& operator<<(std::ostream& os, bit_view<mask> view) {
-    return os << (view ? '1' : '0');
-}
-
-} // namespace net
-
-template <net::byte_t mask>
-struct std::formatter<net::bit_view<mask>> {
-    constexpr auto parse(format_parse_context& ctx) const {
-        return ctx.begin();
-    }
-
-    auto format(net::bit_view<mask> view, format_context& ctx) const {
-        return view
-            ? format_to(ctx.out(), "1")
-            : format_to(ctx.out(), "0");
+template <unsigned len, unsigned hishf, unsigned loshf>
+struct std::formatter<net::uint_view<len, hishf, loshf>>: formatter<net::uint_t> {
+    auto format(net::uint_view<len, hishf, loshf> view, format_context& ctx) {
+        return formatter<net::uint_t>::format(view, ctx);
     }
 };
