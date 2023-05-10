@@ -110,22 +110,4 @@ struct ipv4_view {
     }
 };
 
-//inline std::ostream& operator<<(std::ostream& os, ipv4_view ipv4) {
-//    std::format_to(std::ostream_iterator<char>(os),
-//        "   version {}\n"
-//        "header_len {}\n"
-//        " total_len {}\n"
-//        "  protocol {}\n"
-//        "  src_addr {}\n"
-//        "  dst_addr {}\n"
-//        , ipv4.version()
-//        , ipv4.header_len()
-//        , ipv4.total_len()
-//        , ipv4.protocol()
-//        , ipv4.src_addr()
-//        , ipv4.dst_addr()
-//    );
-//    return os;
-//}
-
 } // namespace net
