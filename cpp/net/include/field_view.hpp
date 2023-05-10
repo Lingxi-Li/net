@@ -25,8 +25,6 @@ static_assert(
 //  |                                |
 // data                        (data + len) in byte
 
-constexpr unsigned hishf_lead = (sizeof(unsigned) - 1) * 8;
-
 template <unsigned len, unsigned hishf = 0, unsigned loshf = 0>
 struct uint_view {
     byte_t* data;
@@ -52,10 +50,10 @@ struct uint_view {
 private:
     static_assert(2 <= len && len <= sizeof(uint_t));
     static_assert(hishf <= 7 && loshf <= 7);
-    constexpr static unsigned hi_uint_mask = unsigned(-1) << hishf_lead << hishf >> hishf >> hishf_lead;
-    constexpr static unsigned hi_data_mask = ~hi_uint_mask << hishf_lead >> hishf_lead;
-    constexpr static unsigned lo_uint_mask = unsigned(-1) << hishf_lead >> hishf_lead >> loshf << loshf;
-    constexpr static unsigned lo_data_mask = ~lo_uint_mask << hishf_lead >> hishf_lead;
+    constexpr static unsigned hi_uint_mask = (unsigned(-1) << hishf & 0xff) >> hishf;
+    constexpr static unsigned hi_data_mask = ~hi_uint_mask & 0xff;
+    constexpr static unsigned lo_uint_mask = (unsigned(-1) & 0xff) >> loshf << loshf;
+    constexpr static unsigned lo_data_mask = ~lo_uint_mask & 0xff;
 
     uint_t parse_uint_le() const noexcept {
         uint_t uint{};
@@ -119,8 +117,8 @@ struct uint_view<1, hishf, loshf> {
 private:
     static_assert(hishf <= 7 && loshf <= 7);
     static_assert(hishf + loshf <= 7);
-    constexpr static unsigned uint_mask = unsigned(-1) << hishf_lead << hishf >> hishf >> hishf_lead >> loshf << loshf;
-    constexpr static unsigned data_mask = ~uint_mask << hishf_lead >> hishf_lead;
+    constexpr static unsigned uint_mask = (unsigned(-1) << hishf & 0xff) >> hishf >> loshf << loshf;
+    constexpr static unsigned data_mask = ~uint_mask & 0xff;
 };
 
 //     _ _ _ _ _ _ _ _
