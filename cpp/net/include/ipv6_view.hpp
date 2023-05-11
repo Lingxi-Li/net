@@ -40,14 +40,14 @@ struct std::formatter<net::ipv6_addr_view_t<T>> {
 
     auto format(net::ipv6_addr_view_t<T> view, format_context& ctx) const {
         return format_to(ctx.out(), "{:x}:{:x}:{:x}:{:x}:{:x}:{:x}:{:x}:{:x}"
-            , std::uint64_t(view[ 0]) << 8 | view[ 1]
-            , std::uint64_t(view[ 2]) << 8 | view[ 3]
-            , std::uint64_t(view[ 4]) << 8 | view[ 5]
-            , std::uint64_t(view[ 6]) << 8 | view[ 7]
-            , std::uint64_t(view[ 8]) << 8 | view[ 9]
-            , std::uint64_t(view[10]) << 8 | view[11]
-            , std::uint64_t(view[12]) << 8 | view[13]
-            , std::uint64_t(view[14]) << 8 | view[15]
+            , unsigned(view[ 0]) << 8 | view[ 1]
+            , unsigned(view[ 2]) << 8 | view[ 3]
+            , unsigned(view[ 4]) << 8 | view[ 5]
+            , unsigned(view[ 6]) << 8 | view[ 7]
+            , unsigned(view[ 8]) << 8 | view[ 9]
+            , unsigned(view[10]) << 8 | view[11]
+            , unsigned(view[12]) << 8 | view[13]
+            , unsigned(view[14]) << 8 | view[15]
         );
     }
 };
