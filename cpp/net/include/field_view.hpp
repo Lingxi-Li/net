@@ -1,10 +1,8 @@
 #pragma once
 
 #include <cstdint>
-#include <cstring>
 
 #include <type_traits>
-#include <bit>
 #include <ostream>
 #include <format>
 
@@ -14,12 +12,6 @@ namespace net {
 // (integer) promotion and truncation of intermediate results.
 using byte_t = std::uint8_t;
 using uint_t = std::uint64_t;
-
-// assume either little-endian or big-endian, but not mixed
-static_assert(
-    std::endian::native == std::endian::little ||
-    std::endian::native == std::endian::big
-);
 
 // most sig. bit
 //       v
@@ -40,21 +32,27 @@ struct uint_view_t {
     T* data;
 
     operator uint_t() const noexcept {
-        if constexpr (std::endian::native == std::endian::big) {
-            return parse_uint_be();
+        auto p = data;
+        auto end = data + len;
+        uint_t uint = *p++ & hi_uint_mask;
+        do {
+            uint = uint << 8 | *p++;
         }
-        else {
-            return parse_uint_le();
-        }
+        while (p < end);
+        return uint >> loshf;
     }
 
     void operator=(uint_t uint) const noexcept {
-        if constexpr (std::endian::native == std::endian::big) {
-            write_uint_be(uint);
+        uint <<= loshf;
+        auto p = data + (len - 1);
+        *p = (*p & lo_data_mask) | unsigned(uint);
+        --p;
+        uint >>= 8;
+        while (p > data) {
+            *p-- = uint & 0xff;
+            uint >>= 8;
         }
-        else {
-            write_uint_le(uint);
-        }
+        *p = (*p & hi_data_mask) | (uint & hi_uint_mask);
     }
 
 private:
@@ -62,58 +60,6 @@ private:
     constexpr static unsigned hi_data_mask = ~hi_uint_mask & 0xff;
     constexpr static unsigned lo_uint_mask = (unsigned(-1) & 0xff) >> loshf << loshf;
     constexpr static unsigned lo_data_mask = ~lo_uint_mask & 0xff;
-
-    uint_t parse_uint_le() const noexcept {
-        uint_t uint{};
-        auto dst = (byte_t*)(&uint);
-        auto src = data + (len - 1);
-        do {
-            *dst++ = *src--;
-        }
-        while (src > data);
-        *dst = *src & hi_uint_mask;
-        return uint >> loshf;
-    }
-
-    uint_t parse_uint_be() const noexcept {
-        uint_t uint{};
-        auto dst = (byte_t*)(&uint) + (sizeof(uint_t) - len);
-        auto src = data;
-        *dst++ = *src++ & hi_uint_mask;
-        std::memcpy(dst, src, len - 1);
-        return uint >> loshf;
-    }
-
-    void write_uint_le(uint_t uint) const noexcept {
-        uint <<= loshf;
-        auto dst = data + (len - 1);
-        auto src = (byte_t const*)(&uint);
-        *dst = (*dst & lo_data_mask) | *src;
-        --dst;
-        ++src;
-        if constexpr (len > 2) {
-            do {
-                *dst-- = *src++;
-            }
-            while (dst > data);
-        }
-        *dst = (*dst & hi_data_mask) | (*src & hi_uint_mask);
-    }
-
-    void write_uint_be(uint_t uint) const noexcept {
-        uint <<= loshf;
-        auto dst = data;
-        auto src = (byte_t const*)(&uint) + (sizeof(uint_t) - len);
-        *dst = (*dst & hi_data_mask) | (*src & hi_uint_mask);
-        ++dst;
-        ++src;
-        if constexpr (len > 2) {
-            std::memcpy(dst, src, len - 2);
-            dst += len - 2;
-            src += len - 2;
-        }
-        *dst = (*dst & lo_data_mask) | *src;
-    }
 };
 
 template <typename T, unsigned hishf, unsigned loshf>
