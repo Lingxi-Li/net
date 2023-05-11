@@ -49,17 +49,17 @@ struct uint_view_t {
         --p;
         uint >>= 8;
         while (p > data) {
-            *p-- = uint & 0xff;
+            *p-- = uint & 0xffu;
             uint >>= 8;
         }
         *p = (*p & hi_data_mask) | (uint & hi_uint_mask);
     }
 
 private:
-    constexpr static unsigned hi_uint_mask = (unsigned(-1) << hishf & 0xff) >> hishf;
-    constexpr static unsigned hi_data_mask = ~hi_uint_mask & 0xff;
-    constexpr static unsigned lo_uint_mask = (unsigned(-1) & 0xff) >> loshf << loshf;
-    constexpr static unsigned lo_data_mask = ~lo_uint_mask & 0xff;
+    constexpr static unsigned hi_uint_mask = (unsigned(-1) << hishf & 0xffu) >> hishf;
+    constexpr static unsigned hi_data_mask = ~hi_uint_mask & 0xffu;
+    constexpr static unsigned lo_uint_mask = (unsigned(-1) & 0xffu) >> loshf << loshf;
+    constexpr static unsigned lo_data_mask = ~lo_uint_mask & 0xffu;
 };
 
 template <typename T, unsigned hishf, unsigned loshf>
@@ -79,8 +79,8 @@ struct uint_view_t<T, 1, hishf, loshf> {
     }
 
 private:
-    constexpr static unsigned uint_mask = (unsigned(-1) << hishf & 0xff) >> hishf >> loshf << loshf;
-    constexpr static unsigned data_mask = ~uint_mask & 0xff;
+    constexpr static unsigned uint_mask = (unsigned(-1) << hishf & 0xffu) >> hishf >> loshf << loshf;
+    constexpr static unsigned data_mask = ~uint_mask & 0xffu;
 };
 
 template <unsigned len, unsigned hishf = 0, unsigned loshf = 0>
