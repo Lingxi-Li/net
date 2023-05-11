@@ -19,4 +19,7 @@ TEST_CASE("ipv6_addr_view") {
     view[0] = 0;
     REQUIRE(vec[0] == 0);
     REQUIRE(str_via_ostream(view) == "0:1413:b000:1d:0:0:17d1:2e96");
+    view[0] = 0xff;
+    view[1] = 0xff;
+    REQUIRE(str_via_ostream(view) == "ffff:1413:b000:1d:0:0:17d1:2e96");
 }
