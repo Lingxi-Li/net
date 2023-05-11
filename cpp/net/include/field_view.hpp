@@ -3,6 +3,7 @@
 #include <cstdint>
 #include <cstring>
 
+#include <type_traits>
 #include <bit>
 #include <ostream>
 #include <format>
@@ -25,9 +26,13 @@ static_assert(
 //  |                                |
 // data                        (data + len) in byte
 
-template <unsigned len, unsigned hishf = 0, unsigned loshf = 0>
-struct uint_view {
-    byte_t* data;
+template <typename T, unsigned len, unsigned hishf = 0, unsigned loshf = 0>
+struct uint_view_t {
+    static_assert(std::is_same_v<T, byte_t> || std::is_same_v<T, byte_t const>);
+    static_assert(2 <= len && len <= sizeof(uint_t));
+    static_assert(hishf <= 7 && loshf <= 7);
+
+    T* data;
 
     operator uint_t() const noexcept {
         if constexpr (std::endian::native == std::endian::big) {
@@ -48,8 +53,6 @@ struct uint_view {
     }
 
 private:
-    static_assert(2 <= len && len <= sizeof(uint_t));
-    static_assert(hishf <= 7 && loshf <= 7);
     constexpr static unsigned hi_uint_mask = (unsigned(-1) << hishf & 0xff) >> hishf;
     constexpr static unsigned hi_data_mask = ~hi_uint_mask & 0xff;
     constexpr static unsigned lo_uint_mask = (unsigned(-1) & 0xff) >> loshf << loshf;
@@ -108,9 +111,12 @@ private:
     }
 };
 
-template <unsigned hishf, unsigned loshf>
-struct uint_view<1, hishf, loshf> {
-    byte_t* data;
+template <typename T, unsigned hishf, unsigned loshf>
+struct uint_view_t<T, 1, hishf, loshf> {
+    static_assert(std::is_same_v<T, byte_t> || std::is_same_v<T, byte_t const>);
+    static_assert(hishf + loshf <= 7);
+
+    T* data;
 
     operator uint_t() const noexcept {
         return (*data & uint_mask) >> loshf;
@@ -122,28 +128,39 @@ struct uint_view<1, hishf, loshf> {
     }
 
 private:
-    static_assert(hishf <= 7 && loshf <= 7);
-    static_assert(hishf + loshf <= 7);
     constexpr static unsigned uint_mask = (unsigned(-1) << hishf & 0xff) >> hishf >> loshf << loshf;
     constexpr static unsigned data_mask = ~uint_mask & 0xff;
 };
 
-//     _ _ _ _ _ _ _ _
-// pos 0 1 2 3 4 5 6 7
+template <unsigned len, unsigned hishf = 0, unsigned loshf = 0>
+using uint_view = uint_view_t<byte_t, len, hishf, loshf>;
+
+template <unsigned len, unsigned hishf = 0, unsigned loshf = 0>
+using uint_const_view = uint_view_t<byte_t const, len, hishf, loshf>;
+
+// 128 = 1 0 0 0 0 0 0 0
+//       ---------------
+// pos   0 1 2 3 4 5 6 7
+
+template <typename T, unsigned pos>
+using bit_view_t = uint_view_t<T, 1, pos, 7 - pos>;
 
 template <unsigned pos>
-using bit_view = uint_view<1, pos, 7 - pos>;
+using bit_view = bit_view_t<byte_t, pos>;
 
-template <unsigned len, unsigned hishf, unsigned loshf> inline
-std::ostream& operator<<(std::ostream& os, uint_view<len, hishf, loshf> view) {
+template <unsigned pos>
+using bit_const_view = bit_view_t<byte_t const, pos>;
+
+template <typename T, unsigned len, unsigned hishf, unsigned loshf> inline
+std::ostream& operator<<(std::ostream& os, uint_view_t<T, len, hishf, loshf> view) {
     return os << uint_t(view);
 }
 
 } // namespace net
 
-template <unsigned len, unsigned hishf, unsigned loshf>
-struct std::formatter<net::uint_view<len, hishf, loshf>>: formatter<net::uint_t> {
-    auto format(net::uint_view<len, hishf, loshf> view, format_context& ctx) {
+template <typename T, unsigned len, unsigned hishf, unsigned loshf>
+struct std::formatter<net::uint_view_t<T, len, hishf, loshf>>: formatter<net::uint_t> {
+    auto format(net::uint_view_t<T, len, hishf, loshf> view, format_context& ctx) {
         return formatter<net::uint_t>::format(view, ctx);
     }
 };

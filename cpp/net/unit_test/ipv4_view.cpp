@@ -27,9 +27,7 @@ TEST_CASE("ipv4_addr_view") {
 }
 
 TEST_CASE("ipv4_view") {
-    auto vec = make_byte_vec(sample_ipv4_tcp_syn);
-    ipv4_view view{vec.data()};
-
+    ipv4_const_view view{sample_ipv4_tcp_syn};
     REQUIRE(view.version() == 4);
     REQUIRE(view.header_len() == 5);
     REQUIRE(view.diff_serv() == 0);
