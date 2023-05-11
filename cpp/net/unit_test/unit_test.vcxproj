@@ -67,11 +67,13 @@
   <ItemGroup>
     <ClCompile Include="field_view.cpp" />
     <ClCompile Include="ipv4_view.cpp" />
+    <ClCompile Include="ipv6_view.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\field_view.hpp" />
     <ClInclude Include="..\include\ipv4_view.hpp" />
+    <ClInclude Include="..\include\ipv6_view.hpp" />
     <ClInclude Include="sample_packet.hpp" />
     <ClInclude Include="test_utility.hpp" />
   </ItemGroup>
