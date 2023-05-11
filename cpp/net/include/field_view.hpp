@@ -80,11 +80,14 @@ private:
         uint <<= loshf;
         auto dst = data + (len - 1);
         auto src = (byte_t const*)(&uint);
-        *dst = (*dst & lo_data_mask) | (*src & lo_uint_mask);
+        *dst = (*dst & lo_data_mask) | *src;
         --dst;
         ++src;
-        while (dst > data) {
-            *dst-- = *src++;
+        if constexpr (len > 2) {
+            do {
+                *dst-- = *src++;
+            }
+            while (dst > data);
         }
         *dst = (*dst & hi_data_mask) | (*src & hi_uint_mask);
     }
@@ -94,10 +97,14 @@ private:
         auto dst = data;
         auto src = (byte_t const*)(&uint) + (sizeof(uint_t) - len);
         *dst = (*dst & hi_data_mask) | (*src & hi_uint_mask);
-        std::memcpy(++dst, ++src, len - 2);
-        dst += len - 2;
-        src += len - 2;
-        *dst = (*dst & lo_data_mask) | (*src & lo_uint_mask);
+        ++dst;
+        ++src;
+        if constexpr (len > 2) {
+            std::memcpy(dst, src, len - 2);
+            dst += len - 2;
+            src += len - 2;
+        }
+        *dst = (*dst & lo_data_mask) | *src;
     }
 };
 
