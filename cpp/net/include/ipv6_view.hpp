@@ -95,6 +95,10 @@ struct ipv6_view_t {
     ipv6_addr_view_t<T> dst_addr() const noexcept {
         return { data + 24 };
     }
+
+    T* next_header_data() const noexcept {
+        return data + 40;
+    }
 };
 
 using ipv6_view = ipv6_view_t<byte_t>;
