@@ -51,3 +51,53 @@ struct std::formatter<net::ipv6_addr_view_t<T>> {
         );
     }
 };
+
+namespace net {
+
+template <typename T>
+struct ipv6_view_t {
+    static_assert(std::is_same_v<T, byte_t> || std::is_same_v<T, byte_t const>);
+
+    T* data;
+
+    uint_view_t<T, 1, 0, 4> version() const noexcept {
+        return { data };
+    }
+
+    uint_view_t<T, 2, 4, 6> diff_serv() const noexcept {
+        return { data };
+    }
+
+    uint_view_t<T, 1, 2, 4> ecn() const noexcept {
+        return { data + 1 };
+    }
+
+    uint_view_t<T, 3, 4> flow() const noexcept {
+        return { data + 1 };
+    }
+
+    uint_view_t<T, 2> payload_len() const noexcept {
+        return { data + 4 };
+    }
+
+    uint_view_t<T, 1> next_header() const noexcept {
+        return { data + 6 };
+    }
+
+    uint_view_t<T, 1> hop_limit() const noexcept {
+        return { data + 7 };
+    }
+
+    ipv6_addr_view_t<T> src_addr() const noexcept {
+        return { data + 8 };
+    }
+
+    ipv6_addr_view_t<T> dst_addr() const noexcept {
+        return { data + 24 };
+    }
+};
+
+using ipv6_view = ipv6_view_t<byte_t>;
+using ipv6_const_view = ipv6_view_t<byte_t const>;
+
+} // namespace net
