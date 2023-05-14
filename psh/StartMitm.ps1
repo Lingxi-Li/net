@@ -1,5 +1,5 @@
 param(
-    [Parameter(Mandatory=$false)][string]$Args
+    [Parameter(Mandatory=$false)][string]$Arg
 )
 
 Import-Module -Name .\psh\Utility.psm1
@@ -10,18 +10,23 @@ if ($TlsKeyLogPath) {
     $null = New-Item -Path $TlsKeyLogPath -ItemType File -Force -ErrorAction Stop
 }
 
-"Args: $($Args)"
-$Transparent = $Args.ToLower().Contains("transparent")
+$AllowHosts = Read-Host "allow_hosts"
+if ($AllowHosts) {
+    $Arg += " --set allow_hosts=$($AllowHosts)"
+}
+
+"Arg: $($Arg)"
+$Transparent = $Arg.ToLower().Contains("transparent")
 "Transparent: $($Transparent)"
 
 if ($Transparent) {
     Require (-not (VpnConnected)) "VPN is connected"
     Require (AsAdmin) "Require admin privilege"
     DisableSysProxy
-    Start-Process -FilePath "mitmproxy" -ArgumentList $Args -Wait
+    Start-Process -FilePath "mitmproxy" -ArgumentList $Arg -Wait
 }
 else {
-    $Process = Start-Process -FilePath "mitmproxy" -ArgumentList $Args -PassThru
+    $Process = Start-Process -FilePath "mitmproxy" -ArgumentList $Arg -PassThru
     Start-Sleep -Seconds 1
     EnableSysProxy "http://localhost:8080" "<local>"
     Wait-Process -Id $Process.Id
