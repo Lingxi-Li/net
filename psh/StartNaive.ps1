@@ -49,7 +49,7 @@ finally {
 }
 
 if ($Update) {
-    MessageBox "Auto Updater" "About to update naive..."
+    "Updating naive..."
     Expand-Archive -Path $ZipPath -Force
     $AssetPath = "naive\$($AssetName)"
     Copy-Item -Path "$($AssetPath)\naive.exe" -Destination $AppPath -Force

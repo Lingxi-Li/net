@@ -25,7 +25,7 @@ function VpnConnected {
 
 function EnableSysProxy([string]$ServerUrl, [string]$Bypass) {
     if (VpnConnected) {
-        MessageBox "VPN Connected" "Enable/disable proxy over VPN with CFW"
+        "VPN Connected. Enable/disable proxy over VPN with CFW"
     }
     else {
         $RegPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings"
