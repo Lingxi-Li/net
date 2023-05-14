@@ -10,9 +10,9 @@ if ($TlsKeyLogPath) {
     $null = New-Item -Path $TlsKeyLogPath -ItemType File -Force -ErrorAction Stop
 }
 
-$AllowHosts = Read-Host "allow_hosts"
-if ($AllowHosts) {
-    $Arg += " --set allow_hosts=$($AllowHosts)"
+$ExtraOptions = Read-Host "Extra options"
+if ($ExtraOptions) {
+    $Arg += " $($ExtraOptions)"
 }
 
 "Arg: $($Arg)"
