@@ -21,6 +21,7 @@ $Transparent = $Arg.ToLower().Contains("transparent")
 
 if ($Transparent) {
     Require (-not (VpnConnected)) "VPN is connected"
+    Require (-not (CfwPresent)) "CFW is running"
     Require (AsAdmin) "Require admin privilege"
     DisableSysProxy
     Start-Process -FilePath "mitmproxy" -ArgumentList $Arg -Wait

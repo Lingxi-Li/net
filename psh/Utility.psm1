@@ -23,9 +23,19 @@ function VpnConnected {
     $false
 }
 
+function CfwPresent {
+    if (Get-Process -Name "Clash for Windows" -ErrorAction SilentlyContinue) {
+        return $true
+    }
+    $false
+}
+
 function EnableSysProxy([string]$ServerUrl, [string]$Bypass) {
     if (VpnConnected) {
         "VPN Connected. Enable/disable proxy over VPN with CFW"
+    }
+    elseif (CfwPresent) {
+        "CFW is running. Enable/disable proxy with CFW"
     }
     else {
         $RegPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings"
@@ -36,7 +46,7 @@ function EnableSysProxy([string]$ServerUrl, [string]$Bypass) {
 }
 
 function DisableSysProxy() {
-    if (-not (VpnConnected)) {
+    if ((-not (VpnConnected)) -and (-not (CfwPresent))) {
         $RegPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings"
         $null = Set-ItemProperty -Path $RegPath -Name "ProxyEnable" -Value 0 -Type DWord -Force
     }
