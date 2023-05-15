@@ -20,6 +20,7 @@ struct ipv4_addr_view_t {
         return data[i];
     }
 };
+static_assert(std::is_aggregate_v<ipv4_addr_view_t<byte_t>>);
 
 using ipv4_addr_view = ipv4_addr_view_t<byte_t>;
 using ipv4_addr_const_view = ipv4_addr_view_t<byte_t const>;
@@ -120,6 +121,7 @@ struct ipv4_view_t {
         return data + header_len() * 4;
     }
 };
+static_assert(std::is_aggregate_v<ipv4_view_t<byte_t>>);
 
 using ipv4_view = ipv4_view_t<byte_t>;
 using ipv4_const_view = ipv4_view_t<byte_t const>;

@@ -20,6 +20,7 @@ struct ipv6_addr_view_t {
         return data[i];
     }
 };
+static_assert(std::is_aggregate_v<ipv6_addr_view_t<byte_t>>);
 
 using ipv6_addr_view = ipv6_addr_view_t<byte_t>;
 using ipv6_addr_const_view = ipv6_addr_view_t<byte_t const>;
@@ -100,6 +101,7 @@ struct ipv6_view_t {
         return data + 40;
     }
 };
+static_assert(std::is_aggregate_v<ipv6_view_t<byte_t>>);
 
 using ipv6_view = ipv6_view_t<byte_t>;
 using ipv6_const_view = ipv6_view_t<byte_t const>;

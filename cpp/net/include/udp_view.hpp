@@ -32,6 +32,7 @@ struct udp_view_t {
         return { data + 8 };
     }
 };
+static_assert(std::is_aggregate_v<udp_view_t<byte_t>>);
 
 using udp_view = udp_view_t<byte_t>;
 using udp_const_view = udp_view_t<byte_t const>;

@@ -61,6 +61,7 @@ private:
     constexpr static unsigned lo_uint_mask = (unsigned(-1) & 0xffu) >> loshf << loshf;
     constexpr static unsigned lo_data_mask = ~lo_uint_mask & 0xffu;
 };
+static_assert(std::is_aggregate_v<uint_view_t<byte_t, 2>>);
 
 template <typename T, unsigned hishf, unsigned loshf>
 struct uint_view_t<T, 1, hishf, loshf> {
@@ -82,6 +83,7 @@ private:
     constexpr static unsigned uint_mask = (unsigned(-1) << hishf & 0xffu) >> hishf >> loshf << loshf;
     constexpr static unsigned data_mask = ~uint_mask & 0xffu;
 };
+static_assert(std::is_aggregate_v<uint_view_t<byte_t, 1>>);
 
 template <unsigned len, unsigned hishf = 0, unsigned loshf = 0>
 using uint_view = uint_view_t<byte_t, len, hishf, loshf>;
