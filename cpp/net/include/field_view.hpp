@@ -29,7 +29,7 @@ struct uint_view_t {
     static_assert(2 <= len && len <= sizeof(uint_t));
     static_assert(hishf <= 7 && loshf <= 7);
 
-    T* data;
+    T* data{};
 
     operator uint_t() const noexcept {
         auto p = data;
@@ -68,7 +68,7 @@ struct uint_view_t<T, 1, hishf, loshf> {
     static_assert(std::is_same_v<T, byte_t> || std::is_same_v<T, byte_t const>);
     static_assert(hishf + loshf <= 7);
 
-    T* data;
+    T* data{};
 
     operator uint_t() const noexcept {
         return (*data & uint_mask) >> loshf;

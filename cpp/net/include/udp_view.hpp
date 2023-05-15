@@ -10,7 +10,7 @@ template <typename T>
 struct udp_view_t {
     static_assert(std::is_same_v<T, byte_t> || std::is_same_v<T, byte_t const>);
 
-    T* data;
+    T* data{};
 
     uint_view_t<T, 2> src_port() const noexcept {
         return { data };
