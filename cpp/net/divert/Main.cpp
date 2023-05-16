@@ -4,6 +4,6 @@
 #include <iostream>
 
 int main() {
-    dvt::Error err{dvt::Api::WinDivertOpen, 1275};
-    std::cout << err << std::endl;
+    dvt::Handle handle;
+    std::cout << handle << std::endl;
 }
