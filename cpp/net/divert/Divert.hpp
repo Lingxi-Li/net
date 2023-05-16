@@ -21,13 +21,9 @@ inline std::ostream& operator<<(std::ostream& os, Api api) {
 } // namespace dvt
 
 template <>
-struct std::formatter<dvt::Api> {
-    constexpr auto parse(format_parse_context& ctx) const {
-        return ctx.begin();
-    }
-
-    auto format(dvt::Api api, format_context& ctx) const {
-        return format_to(ctx.out(), "{}", StrRep[DWORD(api)]);
+struct std::formatter<dvt::Api>: formatter<char const*> {
+    auto format(dvt::Api api, format_context& ctx) {
+        return formatter<char const*>::format(StrRep[DWORD(api)], ctx);
     }
 
 private:
