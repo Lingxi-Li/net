@@ -67,6 +67,12 @@ namespace dvt {
 class Handle {
 public:
     Handle() noexcept = default;
+
+    Handle(char const* filter, WINDIVERT_LAYER layer, INT16 priority, UINT64 flags)
+        : handle(WinDivertOpen(filter, layer, priority, flags)) {
+        if (handle == INVALID_HANDLE_VALUE) throw Error{Api::WinDivertOpen};
+    }
+
     Handle(Handle const&) = delete;
 
     Handle(Handle&& other) noexcept
@@ -99,7 +105,24 @@ public:
         return handle;
     }
 
+    void Open(char const* filter, WINDIVERT_LAYER layer, INT16 priority, UINT64 flags) {
+        if (handle != INVALID_HANDLE_VALUE) {
+            WinDivertClose(handle);
+        }
+        handle = WinDivertOpen(filter, layer, priority, flags);
+        if (handle == INVALID_HANDLE_VALUE) throw Error{Api::WinDivertOpen};
+    }
+
+    void Close() {
+        Check(WinDivertClose(handle), Api::WinDivertClose);
+        handle = INVALID_HANDLE_VALUE;
+    }
+
 private:
+    static void Check(BOOL res, Api api) {
+        if (!res) throw Error{api};
+    }
+
     HANDLE handle{INVALID_HANDLE_VALUE};
 };
 
