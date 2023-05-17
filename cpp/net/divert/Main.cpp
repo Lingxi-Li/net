@@ -11,7 +11,7 @@ int main() {
         dvt::Handle handle("true", WINDIVERT_LAYER_NETWORK, 0, flags);
         handle.Open("true", WINDIVERT_LAYER_NETWORK, 0, flags);
     }
-    catch (dvt::Error err) {
-        std::cout << err << std::endl;
-    }    
+    catch (std::exception const& err) {
+        std::cout << err.what() << std::endl;
+    }
 }

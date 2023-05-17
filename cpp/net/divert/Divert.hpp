@@ -3,7 +3,7 @@
 #include "windivert.h"
 
 #include <system_error>
-#include <type_traits>
+#include <exception>
 #include <ostream>
 #include <iterator>
 #include <format>
@@ -37,13 +37,23 @@ private:
 
 namespace dvt {
 
-struct Error {
-    Api const FailedApi;
-    DWORD const ErrorCode{GetLastError()};
-};
-static_assert(std::is_aggregate_v<Error>);
+struct Error: std::exception {
+    Error(Api api)
+        : FailedApi(api)
+        , ErrorCode(GetLastError())
+        , Message(std::format("{}, {}: {}", FailedApi, ErrorCode, std::system_category().message(ErrorCode))) {
+    }
 
-inline std::ostream& operator<<(std::ostream& os, Error err) {
+    char const* what() const noexcept override {
+        return Message.c_str();
+    }
+
+    Api FailedApi;
+    DWORD ErrorCode;
+    std::string Message;
+};
+
+inline std::ostream& operator<<(std::ostream& os, Error const& err) {
     std::format_to(std::ostream_iterator<char>(os), "{}", err);
     return os;
 }
@@ -52,13 +62,8 @@ inline std::ostream& operator<<(std::ostream& os, Error err) {
 
 template <>
 struct std::formatter<dvt::Error>: formatter<string> {
-    auto format(dvt::Error err, format_context& ctx) {
-        auto str = std::format("{}, {}: {}"
-            , err.FailedApi
-            , err.ErrorCode
-            , std::system_category().message(err.ErrorCode)
-        );
-        return formatter<string>::format(str, ctx);
+    auto format(dvt::Error const& err, format_context& ctx) {
+        return formatter<string>::format(err.Message, ctx);
     }
 };
 
@@ -70,7 +75,7 @@ public:
 
     Handle(char const* filter, WINDIVERT_LAYER layer, INT16 priority, UINT64 flags)
         : handle(WinDivertOpen(filter, layer, priority, flags)) {
-        if (handle == INVALID_HANDLE_VALUE) throw Error{Api::WinDivertOpen};
+        if (handle == INVALID_HANDLE_VALUE) throw Error(Api::WinDivertOpen);
     }
 
     Handle(Handle const&) = delete;
@@ -110,7 +115,7 @@ public:
             WinDivertClose(handle);
         }
         handle = WinDivertOpen(filter, layer, priority, flags);
-        if (handle == INVALID_HANDLE_VALUE) throw Error{Api::WinDivertOpen};
+        if (handle == INVALID_HANDLE_VALUE) throw Error(Api::WinDivertOpen);
     }
 
     void Close() {
@@ -120,7 +125,7 @@ public:
 
 private:
     static void Check(BOOL res, Api api) {
-        if (!res) throw Error{api};
+        if (!res) throw Error(api);
     }
 
     HANDLE handle{INVALID_HANDLE_VALUE};
