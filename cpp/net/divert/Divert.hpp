@@ -110,6 +110,7 @@ public:
         return handle;
     }
 
+    // close existing before opening new in case the same `priority` is used
     void Open(char const* filter, WINDIVERT_LAYER layer, INT16 priority, UINT64 flags) {
         if (handle != INVALID_HANDLE_VALUE) {
             WinDivertClose(handle);
