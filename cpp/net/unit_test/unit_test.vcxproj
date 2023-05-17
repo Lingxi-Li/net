@@ -72,6 +72,7 @@
     <ClCompile Include="udp_view.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\include\constants.hpp" />
     <ClInclude Include="..\include\field_view.hpp" />
     <ClInclude Include="..\include\ipv4_view.hpp" />
     <ClInclude Include="..\include\ipv6_view.hpp" />
