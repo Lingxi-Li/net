@@ -7,6 +7,6 @@ int main() {
         Passthru passthru("false");
     }
     catch (std::exception const& err) {
-        std::cout << err.what() << std::endl;
+        std::cout << err.what() << '\n';
     }
 }

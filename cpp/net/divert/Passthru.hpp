@@ -2,17 +2,23 @@
 
 #include "Divert.hpp"
 
+#include <format>
+#include <fstream>
 #include <vector>
 
 class Passthru {
 public:
     Passthru(char const* filter, UINT threadCount = 4, UINT batchSize = 8)
         : packetData(threadCount)
-        , addrData(threadCount) {
+        , addrData(threadCount)
+        , logs(threadCount) {
         auto packetsSize = WINDIVERT_MTU_MAX * batchSize;
         for (UINT i = 0; i < threadCount; ++i) {
             packetData[i].resize(packetsSize);
             addrData[i].resize(batchSize);
+            logs[i].exceptions(std::ios_base::failbit);
+            logs[i].open(std::format("Passthru_thread_{}.log", i));
+            logs[i].exceptions(std::ios_base::goodbit);
         }
         
         handle.Open(filter, WINDIVERT_LAYER_NETWORK, 0, 0);
@@ -24,6 +30,7 @@ public:
         auto const packetsSize = packetData[threadIndex].size();
         auto const addrs = addrData[threadIndex].data();
         auto const addrsSize = addrData[threadIndex].size() * sizeof(WINDIVERT_ADDRESS);
+        auto& log = logs[threadIndex];
 
         while (true) {
             UINT packetsRecvedSize = 0;
@@ -43,5 +50,6 @@ public:
 private:
     std::vector<dvt::ByteVec> packetData;
     std::vector<dvt::AddrVec> addrData;
+    std::vector<std::ofstream> logs;
     dvt::Handle handle;
 };
