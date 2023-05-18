@@ -10,6 +10,8 @@
 #include <iterator>
 #include <ostream>
 #include <system_error>
+#include <type_traits>
+#include <vector>
 
 namespace dvt {
 
@@ -71,6 +73,11 @@ struct std::formatter<dvt::Error>: formatter<string> {
 };
 
 namespace dvt {
+
+static_assert(std::is_aggregate_v<WINDIVERT_ADDRESS>);
+
+using ByteVec = std::vector<UINT8>;
+using AddrVec = std::vector<WINDIVERT_ADDRESS>;
 
 class Handle {
 public:
