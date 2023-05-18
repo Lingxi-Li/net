@@ -2,9 +2,9 @@
 
 #include <cstdint>
 
-#include <type_traits>
-#include <ostream>
 #include <format>
+#include <ostream>
+#include <type_traits>
 
 namespace net {
 

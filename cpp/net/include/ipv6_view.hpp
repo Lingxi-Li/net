@@ -4,8 +4,8 @@
 
 #include <cassert>
 
-#include <type_traits>
 #include <iterator>
+#include <type_traits>
 
 namespace net {
 

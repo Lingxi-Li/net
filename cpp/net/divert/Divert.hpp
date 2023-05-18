@@ -5,11 +5,11 @@
 #undef min
 #undef max
 
-#include <system_error>
 #include <exception>
-#include <ostream>
-#include <iterator>
 #include <format>
+#include <iterator>
+#include <ostream>
+#include <system_error>
 
 namespace dvt {
 

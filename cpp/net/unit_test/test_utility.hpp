@@ -2,11 +2,11 @@
 
 #include <cstddef>
 
+#include <format>
+#include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <sstream>
-#include <iostream>
-#include <format>
 
 using byte_vec = std::vector<unsigned char>;
 
