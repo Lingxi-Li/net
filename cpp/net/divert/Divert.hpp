@@ -2,6 +2,9 @@
 
 #include "windivert.h"
 
+#undef min
+#undef max
+
 #include <system_error>
 #include <exception>
 #include <ostream>
