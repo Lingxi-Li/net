@@ -134,6 +134,14 @@ public:
         handle = INVALID_HANDLE_VALUE;
     }
 
+    BOOL Recv(void* packets, UINT packetsSize, UINT* packetsRecvedSize, UINT64 flags, WINDIVERT_ADDRESS* addrs, UINT* addrsSize) const noexcept {
+        return WinDivertRecvEx(handle, packets, packetsSize, packetsRecvedSize, flags, addrs, addrsSize, NULL);
+    }
+
+    BOOL Send(void const* packets, UINT packetsSize, UINT* packetsSentSize, UINT64 flags, WINDIVERT_ADDRESS const* addrs, UINT addrsSize) const noexcept {
+        return WinDivertSendEx(handle, packets, packetsSize, packetsSentSize, flags, addrs, addrsSize, NULL);
+    }
+
 private:
     static void Check(BOOL res, Api api) {
         if (!res) throw Error(api);
