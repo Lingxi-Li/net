@@ -25,7 +25,7 @@ static_assert(std::is_aggregate_v<ipv6_addr_view_t<byte_t>>);
 using ipv6_addr_view = ipv6_addr_view_t<byte_t>;
 using ipv6_addr_const_view = ipv6_addr_view_t<byte_t const>;
 
-template <typename T> inline
+template <typename T>
 std::ostream& operator<<(std::ostream& os, ipv6_addr_view_t<T> view) {
     return format_to(os, "{}", view);
 }

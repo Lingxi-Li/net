@@ -104,7 +104,7 @@ using bit_view = bit_view_t<byte_t, pos>;
 template <unsigned pos>
 using bit_const_view = bit_view_t<byte_t const, pos>;
 
-template <typename T, unsigned len, unsigned hishf, unsigned loshf> inline
+template <typename T, unsigned len, unsigned hishf, unsigned loshf>
 std::ostream& operator<<(std::ostream& os, uint_view_t<T, len, hishf, loshf> view) {
     return os << uint_t(view);
 }
