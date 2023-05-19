@@ -1,10 +1,10 @@
 #pragma once
 
 #include "field_view.hpp"
+#include "utility.hpp"
 
 #include <cassert>
 
-#include <iterator>
 #include <type_traits>
 
 namespace net {
@@ -27,8 +27,7 @@ using ipv6_addr_const_view = ipv6_addr_view_t<byte_t const>;
 
 template <typename T> inline
 std::ostream& operator<<(std::ostream& os, ipv6_addr_view_t<T> view) {
-    std::format_to(std::ostream_iterator<char>(os), "{}", view);
-    return os;
+    return format_to(os, "{}", view);
 }
 
 } // namespace net

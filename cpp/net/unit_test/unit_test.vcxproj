@@ -70,6 +70,7 @@
     <ClCompile Include="ipv6_view.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="udp_view.cpp" />
+    <ClCompile Include="utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\constants.hpp" />
@@ -77,6 +78,7 @@
     <ClInclude Include="..\include\ipv4_view.hpp" />
     <ClInclude Include="..\include\ipv6_view.hpp" />
     <ClInclude Include="..\include\udp_view.hpp" />
+    <ClInclude Include="..\include\utility.hpp" />
     <ClInclude Include="sample_packet.hpp" />
     <ClInclude Include="test_utility.hpp" />
   </ItemGroup>
