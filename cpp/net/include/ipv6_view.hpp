@@ -33,9 +33,9 @@ std::ostream& operator<<(std::ostream& os, ipv6_addr_view_t<T> view) {
 } // namespace net
 
 template <typename T>
-struct std::formatter<net::ipv6_addr_view_t<T>>: formatter<string> {
-    auto format(net::ipv6_addr_view_t<T> view, format_context& ctx) {
-        auto str = std::format("{:x}:{:x}:{:x}:{:x}:{:x}:{:x}:{:x}:{:x}"
+struct std::formatter<net::ipv6_addr_view_t<T>>: net::naive_formatter {
+    auto format(net::ipv6_addr_view_t<T> view, format_context& ctx) const {
+        return format_to(ctx.out(), "{:x}:{:x}:{:x}:{:x}:{:x}:{:x}:{:x}:{:x}"
             , unsigned(view[ 0]) << 8 | view[ 1]
             , unsigned(view[ 2]) << 8 | view[ 3]
             , unsigned(view[ 4]) << 8 | view[ 5]
@@ -45,7 +45,6 @@ struct std::formatter<net::ipv6_addr_view_t<T>>: formatter<string> {
             , unsigned(view[12]) << 8 | view[13]
             , unsigned(view[14]) << 8 | view[15]
         );
-        return formatter<string>::format(str, ctx);
     }
 };
 

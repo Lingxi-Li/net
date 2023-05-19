@@ -33,15 +33,14 @@ std::ostream& operator<<(std::ostream& os, ipv4_addr_view_t<T> view) {
 } // namespace net
 
 template <typename T>
-struct std::formatter<net::ipv4_addr_view_t<T>>: formatter<string> {
-    auto format(net::ipv4_addr_view_t<T> view, format_context& ctx) {
-        auto str = std::format("{}.{}.{}.{}"
+struct std::formatter<net::ipv4_addr_view_t<T>>: net::naive_formatter {
+    auto format(net::ipv4_addr_view_t<T> view, format_context& ctx) const {
+        return format_to(ctx.out(), "{}.{}.{}.{}"
             , unsigned(view[0])
             , unsigned(view[1])
             , unsigned(view[2])
             , unsigned(view[3])
         );
-        return formatter<string>::format(str, ctx);
     }
 };
 
