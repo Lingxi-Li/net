@@ -1,5 +1,5 @@
-#include "utility.hpp"
-#include "catch.hpp"
+#include <net/utility.hpp>
+#include <catch.hpp>
 
 #include <sstream>
 

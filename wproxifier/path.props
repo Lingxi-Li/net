@@ -3,6 +3,6 @@
   <PropertyGroup>
     <OutDir>$(SolutionDir)bin\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <IncludePath>$(SolutionDir)include\;$(IncludePath);</IncludePath>
+    <IncludePath>$(SolutionDir)include\third_party\;$(SolutionDir)include\;$(IncludePath);</IncludePath>
   </PropertyGroup>
 </Project>

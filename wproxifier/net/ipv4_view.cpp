@@ -1,5 +1,5 @@
-#include "ipv4_view.hpp"
-#include "catch.hpp"
+#include <net/ipv4_view.hpp>
+#include <catch.hpp>
 
 #include "test_utility.hpp"
 #include "sample_packet.hpp"

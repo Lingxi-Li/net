@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <DivertPath>$(ProjectDir)Divert</DivertPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <AdditionalDependencies>$(DivertPath)\WinDivert.lib;$(AdditionalDependencies);</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <Target Name="CopyDivertBin" AfterTargets="Build">
+    <Copy SourceFiles="$(DivertPath)\WinDivert.dll" DestinationFolder="$(OutDir)" Condition="!Exists('$(OutDir)WinDivert.dll')" />
+    <Copy SourceFiles="$(DivertPath)\WinDivert64.sys" DestinationFolder="$(OutDir)" Condition="!Exists('$(OutDir)WinDivert64.sys')" />
+  </Target>
+</Project>

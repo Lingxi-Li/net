@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Divert.hpp"
+#include <Divert.hpp>
 
 #include <format>
 #include <fstream>

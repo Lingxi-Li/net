@@ -10,18 +10,11 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Divert.hpp" />
-    <ClInclude Include="Passthru.hpp" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{a9e7207f-57ec-4cc0-9914-adb712cbac4c}</ProjectGuid>
-    <RootNamespace>divert</RootNamespace>
+    <ProjectGuid>{468e307a-a4a4-4ddd-9300-6198138b5cf3}</ProjectGuid>
+    <RootNamespace>nettest</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -42,7 +35,6 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="..\std_ver.props" />
     <Import Project="..\path.props" />
-    <Import Project="divert.props" />
   </ImportGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -72,5 +64,23 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="field_view.cpp" />
+    <ClCompile Include="ipv4_view.cpp" />
+    <ClCompile Include="ipv6_view.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="udp_view.cpp" />
+    <ClCompile Include="utility.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\net\constants.hpp" />
+    <ClInclude Include="..\include\net\field_view.hpp" />
+    <ClInclude Include="..\include\net\ipv4_view.hpp" />
+    <ClInclude Include="..\include\net\ipv6_view.hpp" />
+    <ClInclude Include="..\include\net\udp_view.hpp" />
+    <ClInclude Include="..\include\net\utility.hpp" />
+    <ClInclude Include="sample_packet.hpp" />
+    <ClInclude Include="test_utility.hpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
 </Project>

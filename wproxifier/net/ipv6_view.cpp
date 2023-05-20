@@ -1,5 +1,5 @@
-#include "ipv6_view.hpp"
-#include "catch.hpp"
+#include <net/ipv6_view.hpp>
+#include <catch.hpp>
 
 #include "test_utility.hpp"
 #include "sample_packet.hpp"

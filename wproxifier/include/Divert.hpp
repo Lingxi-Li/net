@@ -1,11 +1,11 @@
 #pragma once
 
-#include "windivert.h"
+#include <windivert.h>
 
 #undef min
 #undef max
 
-#include "utility.hpp"
+#include <net/utility.hpp>
 
 #include <exception>
 #include <format>

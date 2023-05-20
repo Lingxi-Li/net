@@ -1,7 +1,7 @@
-#include "udp_view.hpp"
-#include "catch.hpp"
+#include <net/udp_view.hpp>
+#include <catch.hpp>
 
-#include "ipv6_view.hpp"
+#include <net/ipv6_view.hpp>
 #include "sample_packet.hpp"
 
 using namespace net;

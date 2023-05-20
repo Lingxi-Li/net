@@ -1,5 +1,4 @@
 **/.vs
-**/*.vcxproj.filters
 **/*.vcxproj.user
 **/bin
 **/obj
