@@ -5,10 +5,8 @@
 #undef min
 #undef max
 
-#include <net/utility.hpp>
-
-#include <exception>
 #include <format>
+#include <iterator>
 #include <ostream>
 #include <system_error>
 #include <type_traits>
@@ -22,7 +20,8 @@ enum struct Api: DWORD {
 };
 
 inline std::ostream& operator<<(std::ostream& os, Api api) {
-    return net::format_to(os, "{}", api);
+    std::format_to(std::ostream_iterator<char>(os), "{}", api);
+    return os;
 }
 
 } // namespace dvt
@@ -59,7 +58,7 @@ struct Error: std::exception {
 };
 
 inline std::ostream& operator<<(std::ostream& os, Error const& err) {
-    return net::format_to(os, "{}", err);
+    return os << err.Message;
 }
 
 } // namespace dvt
@@ -150,7 +149,7 @@ private:
 };
 
 inline std::ostream& operator<<(std::ostream& os, Handle const& hdl) {
-    return net::format_to(os, "{}", hdl);
+    return os << HANDLE(hdl);
 }
 
 } // namespace dvt
