@@ -6,7 +6,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "net_test", "net\net_test.vc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dvt_test", "dvt\dvt_test.vcxproj", "{A9E7207F-57EC-4CC0-9914-ADB712CBAC4C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wmt_test", "wmt\wmt_test.vcxproj", "{3BA34678-D830-4530-A9B1-C4EE7B5B0586}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stdex_test", "stdex\stdex_test.vcxproj", "{3BA34678-D830-4530-A9B1-C4EE7B5B0586}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
