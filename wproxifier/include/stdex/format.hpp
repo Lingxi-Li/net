@@ -5,7 +5,7 @@
 #include <ostream>
 #include <utility>
 
-namespace net {
+namespace stdex {
 
 struct naive_formatter {
     constexpr auto parse(std::format_parse_context& ctx) const noexcept {
@@ -19,4 +19,4 @@ std::ostream& format_to(std::ostream& os, std::format_string<Ts...> fmt, Ts&&...
     return os;
 }
 
-} // namespace net
+} // namespace stdex

@@ -1,7 +1,8 @@
 #pragma once
 
 #include "field_view.hpp"
-#include "utility.hpp"
+
+#include <stdex/format.hpp>
 
 #include <cassert>
 
@@ -27,13 +28,13 @@ using ipv4_addr_const_view = ipv4_addr_view_t<byte_t const>;
 
 template <typename T>
 std::ostream& operator<<(std::ostream& os, ipv4_addr_view_t<T> view) {
-    return format_to(os, "{}", view);
+    return stdex::format_to(os, "{}", view);
 }
 
 } // namespace net
 
 template <typename T>
-struct std::formatter<net::ipv4_addr_view_t<T>>: net::naive_formatter {
+struct std::formatter<net::ipv4_addr_view_t<T>>: stdex::naive_formatter {
     auto format(net::ipv4_addr_view_t<T> view, format_context& ctx) const {
         return format_to(ctx.out(), "{}.{}.{}.{}"
             , unsigned(view[0])
