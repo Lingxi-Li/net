@@ -46,7 +46,7 @@ struct Error: std::exception {
     Error(Api api)
         : FailedApi(api)
         , ErrorCode(GetLastError())
-        , Message(std::format("{}, {}: {}", FailedApi, ErrorCode, std::system_category().message(ErrorCode))) {
+        , Message(std::format("{}, 0x{:08X}: {}", FailedApi, ErrorCode, std::system_category().message(ErrorCode))) {
     }
 
     char const* what() const noexcept override {
