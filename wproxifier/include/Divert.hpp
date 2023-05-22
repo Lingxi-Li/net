@@ -9,6 +9,7 @@
 #include <iterator>
 #include <ostream>
 #include <system_error>
+#include <tuple>
 #include <type_traits>
 #include <vector>
 
@@ -132,11 +133,33 @@ public:
         handle = INVALID_HANDLE_VALUE;
     }
 
-    BOOL Recv(void* packets, UINT packetsSize, UINT* packetsRecvedSize, UINT64 flags, WINDIVERT_ADDRESS* addrs, UINT* addrsSize) const noexcept {
-        return WinDivertRecvEx(handle, packets, packetsSize, packetsRecvedSize, flags, addrs, addrsSize, NULL);
+    std::tuple<BOOL, DWORD> Recv(
+        void* packets,
+        UINT packetsSize,
+        UINT* packetsRecvedSize,
+        UINT64 flags,
+        WINDIVERT_ADDRESS* addrs,
+        UINT* addrsSize,
+        DWORD timeoutMs = INFINITE) const noexcept
+    {
+        OVERLAPPED overlap{};
+        auto res = WinDivertRecvEx(handle, packets, packetsSize, packetsRecvedSize, flags, addrs, addrsSize, &overlap);
+        if (res) return { res, NO_ERROR };
+        auto error = GetLastError();
+        if (error != ERROR_IO_PENDING) return { res, error };
+        DWORD unused{};
+        res = GetOverlappedResultEx(handle, &overlap, &unused, timeoutMs, TRUE);
+        return { res, res ? DWORD(NO_ERROR) : GetLastError() };
     }
 
-    BOOL Send(void const* packets, UINT packetsSize, UINT* packetsSentSize, UINT64 flags, WINDIVERT_ADDRESS const* addrs, UINT addrsSize) const noexcept {
+    BOOL Send(
+        void const* packets,
+        UINT packetsSize,
+        UINT* packetsSentSize,
+        UINT64 flags,
+        WINDIVERT_ADDRESS const* addrs,
+        UINT addrsSize) const noexcept
+    {
         return WinDivertSendEx(handle, packets, packetsSize, packetsSentSize, flags, addrs, addrsSize, NULL);
     }
 

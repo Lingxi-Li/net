@@ -56,13 +56,15 @@ public:
         while (true) {
             UINT packetsRecvedByteLen = 0;
             UINT addrsRecvedByteLen = addrsByteLen;
-            if (handle.Recv(packets, packetsByteLen, &packetsRecvedByteLen, 0, addrs, &addrsRecvedByteLen)) {
+            auto [res, error] = handle.Recv(packets, packetsByteLen, &packetsRecvedByteLen, 0, addrs, &addrsRecvedByteLen, INFINITE);
+            if (res) {
                 // TODO: log inspection
                 if (!handle.Send(packets, packetsRecvedByteLen, NULL, 0, addrs, addrsRecvedByteLen)) {
                     // TODO: log error
                 }
             }
             else {
+                if (error == WAIT_IO_COMPLETION) break;
                 // TODO: log error
             }
         }
