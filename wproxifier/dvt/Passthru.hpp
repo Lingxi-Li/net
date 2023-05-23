@@ -45,6 +45,12 @@ class Passthru {
     };
 
 public:
+    Passthru() = default;
+    Passthru(Passthru const&) = delete;
+    Passthru(Passthru&&) = delete;
+    Passthru& operator=(Passthru const&) = delete;
+    Passthru& operator=(Passthru&&) = delete;
+
     void Start(char const* filter, UINT threadCount = 4, UINT batchSize = 8) {
         threadData.reserve(threadCount);
         threads.reserve(threadCount);
