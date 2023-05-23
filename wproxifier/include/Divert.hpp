@@ -17,7 +17,8 @@ namespace dvt {
 
 enum struct Api: DWORD {
     WinDivertOpen,
-    WinDivertClose
+    WinDivertClose,
+    WinDivertShutdown
 };
 
 inline std::ostream& operator<<(std::ostream& os, Api api) {
@@ -36,7 +37,8 @@ struct std::formatter<dvt::Api>: formatter<char const*> {
 private:
     constexpr static char const* StrRep[] = {
         "WinDivertOpen",
-        "WinDivertClose"
+        "WinDivertClose",
+        "WinDivertShutdown"
     };
 };
 
@@ -161,6 +163,11 @@ public:
         UINT addrsSize) const noexcept
     {
         return WinDivertSendEx(handle, packets, packetsSize, packetsSentSize, flags, addrs, addrsSize, NULL);
+    }
+
+    void Shutdown(WINDIVERT_SHUTDOWN how = WINDIVERT_SHUTDOWN_RECV) const {
+        auto res = WinDivertShutdown(handle, how);
+        Check(res, Api::WinDivertShutdown);
     }
 
 private:
