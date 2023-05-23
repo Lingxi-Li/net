@@ -5,6 +5,8 @@
 #undef min
 #undef max
 
+#include <stdex/format.hpp>
+
 #include <format>
 #include <iterator>
 #include <ostream>
@@ -182,3 +184,70 @@ struct std::formatter<dvt::Handle>: formatter<void*> {
         return formatter<void*>::format(HANDLE(hdl), ctx);
     }
 };
+
+//////////////////// output ////////////////////
+
+template <>
+struct std::formatter<WINDIVERT_LAYER>: formatter<char const*> {
+    auto format(WINDIVERT_LAYER layer, format_context& ctx) {
+        return formatter<char const*>::format(StrRep[layer], ctx);
+    }
+
+private:
+    constexpr static char const* StrRep[] = {
+        "NETWORK",
+        "NETWORK_FORWARD",
+        "FLOW",
+        "SOCKET",
+        "REFLECT"
+    };
+};
+
+inline std::ostream& operator<<(std::ostream& os, WINDIVERT_LAYER layer) {
+    return stdex::format_to(os, "{}", layer);
+}
+
+inline std::ostream& operator<<(std::ostream& os, WINDIVERT_ADDRESS const& addr) {
+    auto layer = WINDIVERT_LAYER(addr.Layer);
+    switch (layer) {
+        case WINDIVERT_LAYER_NETWORK:
+            return stdex::format_to(os,
+                "     Layer: {}\n"
+                "   Sniffed: {}\n"
+                "  Outbound: {}\n"
+                "  Loopback: {}\n"
+                "  Impostor: {}\n"
+                "      IPv6: {}\n"
+                "IPChecksum: {}\n"
+                "     IfIdx: {}\n"
+                "  SubIfIdx: {}\n"
+                , layer
+                , addr.Sniffed
+                , addr.Outbound
+                , addr.Loopback
+                , addr.Impostor
+                , addr.IPv6
+                , addr.IPChecksum
+                , addr.Network.IfIdx
+                , addr.Network.SubIfIdx
+            );
+        case WINDIVERT_LAYER_NETWORK_FORWARD:
+            return stdex::format_to(os,
+                "     Layer: {}\n"
+                "   Sniffed: {}\n"
+                "  Impostor: {}\n"
+                "      IPv6: {}\n"
+                "IPChecksum: {}\n"
+                "     IfIdx: {}\n"
+                "  SubIfIdx: {}\n"
+                , layer
+                , addr.Sniffed
+                , addr.Impostor
+                , addr.IPv6
+                , addr.IPChecksum
+                , addr.Network.IfIdx
+                , addr.Network.SubIfIdx
+            );
+    }
+    return os;
+}

@@ -90,6 +90,8 @@ private:
             );
             if (res) {
                 // TODO: log inspection
+                UINT packetCount = UINT(addrsRecvedByteLen / sizeof(WINDIVERT_ADDRESS));
+                Inspect(addrs, packetCount, log);
                 res = handle->Send(packets, packetsRecvedByteLen, NULL, 0, addrs, addrsRecvedByteLen);
                 if (!res) {
                     // TODO: log error
@@ -100,6 +102,12 @@ private:
                 if (error == ERROR_NO_DATA) break;
                 // TODO: log error
             }
+        }
+    }
+
+    static void Inspect(WINDIVERT_ADDRESS const* addrs, UINT count, std::ostream& os) noexcept {
+        while (count--) {
+            os << *addrs++ << '\n';
         }
     }
 
