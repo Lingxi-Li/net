@@ -81,6 +81,14 @@ static_assert(std::is_aggregate_v<WINDIVERT_ADDRESS>);
 using ByteVec = std::vector<UINT8>;
 using AddrVec = std::vector<WINDIVERT_ADDRESS>;
 
+inline void Check(BOOL res, Api api) {
+    if (!res) throw Error(api);
+}
+
+inline void Check(HANDLE handle, Api api) {
+    if (handle == INVALID_HANDLE_VALUE) throw Error(api);
+}
+
 class Handle {
 public:
     Handle() noexcept = default;
@@ -165,10 +173,6 @@ public:
     }
 
 private:
-    static void Check(BOOL res, Api api) {
-        if (!res) throw Error(api);
-    }
-
     HANDLE handle{INVALID_HANDLE_VALUE};
 };
 
