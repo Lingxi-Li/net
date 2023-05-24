@@ -19,7 +19,9 @@ namespace dvt {
 enum struct Api: DWORD {
     WinDivertOpen,
     WinDivertClose,
-    WinDivertShutdown
+    WinDivertShutdown,
+    WinDivertRecv,
+    WinDivertSend
 };
 
 inline std::ostream& operator<<(std::ostream& os, Api api) {
@@ -39,7 +41,9 @@ private:
     constexpr static char const* StrRep[] = {
         "WinDivertOpen",
         "WinDivertClose",
-        "WinDivertShutdown"
+        "WinDivertShutdown",
+        "WinDivertRecv",
+        "WinDivertSend"
     };
 };
 
