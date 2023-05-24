@@ -6,6 +6,7 @@
     <ClCompile Include="ipv6_view.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="udp_view.cpp" />
+    <ClCompile Include="tcp_view.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\net\constants.hpp">
@@ -21,6 +22,9 @@
       <Filter>net</Filter>
     </ClInclude>
     <ClInclude Include="..\include\net\udp_view.hpp">
+      <Filter>net</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\net\tcp_view.hpp">
       <Filter>net</Filter>
     </ClInclude>
     <ClInclude Include="sample_packet.hpp" />

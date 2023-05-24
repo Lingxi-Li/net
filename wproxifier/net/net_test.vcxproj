@@ -69,6 +69,7 @@
     <ClCompile Include="ipv4_view.cpp" />
     <ClCompile Include="ipv6_view.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="tcp_view.cpp" />
     <ClCompile Include="udp_view.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -76,6 +77,7 @@
     <ClInclude Include="..\include\net\field_view.hpp" />
     <ClInclude Include="..\include\net\ipv4_view.hpp" />
     <ClInclude Include="..\include\net\ipv6_view.hpp" />
+    <ClInclude Include="..\include\net\tcp_view.hpp" />
     <ClInclude Include="..\include\net\udp_view.hpp" />
     <ClInclude Include="sample_packet.hpp" />
   </ItemGroup>
