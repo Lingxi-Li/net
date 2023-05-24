@@ -220,36 +220,17 @@ inline std::ostream& operator<<(std::ostream& os, WINDIVERT_ADDRESS const& addr)
     switch (layer) {
         case WINDIVERT_LAYER_NETWORK:
             return stdex::format_to(os,
-                "     Layer: {}\n"
-                "   Sniffed: {}\n"
-                "  Outbound: {}\n"
-                "  Loopback: {}\n"
-                "  Impostor: {}\n"
-                "      IPv6: {}\n"
-                "IPChecksum: {}\n"
-                "     IfIdx: {}\n"
-                "  SubIfIdx: {}\n"
+                "{}\n"
+                "----------------------------\n"
+                " Sniffed: {}      Impostor: {}\n"
+                "Loopback: {}      Outbound: {}\n"
+                "    IPv6: {}    IPChecksum: {}\n"
+                "   IfIdx: {}      SubIfIdx: {}\n"
+                "----------------------------\n"
                 , layer
                 , addr.Sniffed
                 , addr.Outbound
                 , addr.Loopback
-                , addr.Impostor
-                , addr.IPv6
-                , addr.IPChecksum
-                , addr.Network.IfIdx
-                , addr.Network.SubIfIdx
-            );
-        case WINDIVERT_LAYER_NETWORK_FORWARD:
-            return stdex::format_to(os,
-                "     Layer: {}\n"
-                "   Sniffed: {}\n"
-                "  Impostor: {}\n"
-                "      IPv6: {}\n"
-                "IPChecksum: {}\n"
-                "     IfIdx: {}\n"
-                "  SubIfIdx: {}\n"
-                , layer
-                , addr.Sniffed
                 , addr.Impostor
                 , addr.IPv6
                 , addr.IPChecksum
