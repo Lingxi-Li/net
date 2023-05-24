@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="webfilter.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Divert.hpp" />
