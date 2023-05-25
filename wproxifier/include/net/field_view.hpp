@@ -55,6 +55,10 @@ struct uint_view_t {
         *p = (*p & hi_data_mask) | (uint & hi_uint_mask);
     }
 
+    uint_t uint() const noexcept {
+        return operator uint_t();
+    }
+
 private:
     constexpr static unsigned hi_uint_mask = (unsigned(-1) << hishf & 0xffu) >> hishf;
     constexpr static unsigned hi_data_mask = ~hi_uint_mask & 0xffu;
@@ -77,6 +81,10 @@ struct uint_view_t<T, 1, hishf, loshf> {
     void operator=(uint_t uint) const noexcept {
         uint <<= loshf;
         *data = (*data & data_mask) | (uint & uint_mask);
+    }
+
+    uint_t uint() const noexcept {
+        return operator uint_t();
     }
 
 private:

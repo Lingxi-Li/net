@@ -13,6 +13,7 @@ TEST_CASE("uint_view") {
             byte_vec vec{ 0xa5, 0x5a };
             SECTION("hishf 0, loshf 0") {
                 uint_view<len> view{vec.data()};
+                REQUIRE(view == view.uint());
                 REQUIRE(view == 0xa55a);
                 REQUIRE(str_via_ostream(view) == "42330");
                 REQUIRE(str_via_format(view) == "42330");
@@ -22,6 +23,7 @@ TEST_CASE("uint_view") {
             }
             SECTION("hishf 3, loshf 7") {
                 uint_view<len, 3, 7> view{vec.data()};
+                REQUIRE(view == view.uint());
                 REQUIRE(view == 0xa);
                 view = 0xffff;
                 REQUIRE(vec == byte_vec{ 0xbf, 0xda });
@@ -35,6 +37,7 @@ TEST_CASE("uint_view") {
             byte_vec vec{ 0xa5, 0x00, 0xff, 0x5a };
             SECTION("hishf 0, loshf 0") {
                 uint_view<len> view{vec.data()};
+                REQUIRE(view == view.uint());
                 REQUIRE(view == 0xa500ff5a);
                 view = 0x5aff00a5;
                 REQUIRE(vec == byte_vec{ 0x5a, 0xff, 0x00, 0xa5 });
@@ -42,6 +45,7 @@ TEST_CASE("uint_view") {
             }
             SECTION("hishf 3, loshf 7") {
                 uint_view<len, 3, 7> view{vec.data()};
+                REQUIRE(view == view.uint());
                 REQUIRE(view == 0xa01fe);
                 view = 0x1f54ab5;
                 REQUIRE(vec == byte_vec{ 0xba, 0xa5, 0x5a, 0xda });
@@ -55,6 +59,7 @@ TEST_CASE("uint_view") {
             byte_t data = 0xa5;
             SECTION("hishf 0, loshf 0") {
                 uint_view<len> view{&data};
+                REQUIRE(view == view.uint());
                 REQUIRE(view == 0xa5);
                 view = 0x5a;
                 REQUIRE(data == 0x5a);
@@ -62,6 +67,7 @@ TEST_CASE("uint_view") {
             }
             SECTION("hishf 2, loshf 3") {
                 uint_view<len, 2, 3> view{&data};
+                REQUIRE(view == view.uint());
                 REQUIRE(view == 0x4);
                 view = 0x1b;
                 REQUIRE(data == 0x9d);
@@ -69,6 +75,7 @@ TEST_CASE("uint_view") {
             }
             SECTION("hishf 1, loshf 6") {
                 uint_view<len, 1, 6> view{&data};
+                REQUIRE(view == view.uint());
                 REQUIRE(view == 0);
                 view = 0xff;
                 REQUIRE(data == 0xe5);
@@ -76,6 +83,7 @@ TEST_CASE("uint_view") {
             }
             SECTION("bit_view") {
                 bit_view<1> view{&data};
+                REQUIRE(view == view.uint());
                 REQUIRE(view == 0);
                 view = 0xff;
                 REQUIRE(data == 0xe5);

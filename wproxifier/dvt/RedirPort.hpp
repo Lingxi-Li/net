@@ -29,7 +29,7 @@ inline void RedirPort() {
         if (tcp.syn()) std::cout << " SIN";
         if (tcp.ack()) std::cout << " ACK";
         if (tcp.fin()) std::cout << " FIN";
-        stdex::format_to(std::cout, " {}\n", net::uint_t(ip.total_len()) - ip.header_len() * 4 - tcp.header_len() * 4);
+        stdex::format_to(std::cout, " {}\n", ip.total_len() - ip.header_len() * 4 - tcp.header_len() * 4);
 
         do {
             if (tcp.dst_port() == 8000) {
