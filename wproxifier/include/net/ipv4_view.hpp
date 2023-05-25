@@ -116,6 +116,10 @@ struct ipv4_view_t {
     T* payload() const noexcept {
         return data + header_len() * 4;
     }
+
+    T* end() const noexcept {
+        return data + total_len();
+    }
 };
 static_assert(std::is_aggregate_v<ipv4_view_t<byte_t>>);
 

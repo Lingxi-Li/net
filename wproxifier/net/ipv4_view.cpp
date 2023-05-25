@@ -43,4 +43,5 @@ TEST_CASE("ipv4_view") {
     REQUIRE(str_via_format(view.src_addr()) == "192.168.2.103");
     REQUIRE(str_via_format(view.dst_addr()) == "128.119.245.12");
     REQUIRE(view.options() == view.payload());
+    REQUIRE(view.end() == view.data + sizeof(sample_ipv4_tcp_syn));
 }
