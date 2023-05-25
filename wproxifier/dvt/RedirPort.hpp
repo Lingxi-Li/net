@@ -25,11 +25,7 @@ inline void RedirPort() {
         net::ipv4_view ip{packet.data()};
         net::tcp_view tcp{ip.payload()}; 
         
-        stdex::format_to(std::cout, "{} => {}", tcp.src_port(), tcp.dst_port());
-        if (tcp.syn()) std::cout << " SIN";
-        if (tcp.ack()) std::cout << " ACK";
-        if (tcp.fin()) std::cout << " FIN";
-        stdex::format_to(std::cout, " {}\n", ip.total_len() - ip.header_len() * 4 - tcp.header_len() * 4);
+        stdex::format_to(std::cout, "{}, {}\n", tcp, ip);
 
         do {
             if (tcp.dst_port() == 8000) {

@@ -2,6 +2,7 @@
 #include <catch.hpp>
 
 #include <net/ipv4_view.hpp>
+#include <test_utility.hpp>
 #include "sample_packet.hpp"
 
 using namespace net;
@@ -22,4 +23,6 @@ TEST_CASE("tcp_view") {
     REQUIRE(tcp.fin() == 0);
     REQUIRE(tcp.window_size() == 64240);
     REQUIRE(tcp.checksum() == 0x38ba);
+    REQUIRE(str_via_ostream(tcp) == "54594 -> 80 SYN 812484767 0");
+    REQUIRE(str_via_format(tcp) == "54594 -> 80 SYN 812484767 0");
 }

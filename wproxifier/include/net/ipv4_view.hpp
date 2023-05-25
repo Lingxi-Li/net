@@ -126,4 +126,16 @@ static_assert(std::is_aggregate_v<ipv4_view_t<byte_t>>);
 using ipv4_view = ipv4_view_t<byte_t>;
 using ipv4_const_view = ipv4_view_t<byte_t const>;
 
+template <typename T>
+std::ostream& operator<<(std::ostream& os, ipv4_view_t<T> view) {
+    return stdex::format_to(os, "{}", view);
+}
+
 } // namespace net
+
+template <typename T>
+struct std::formatter<net::ipv4_view_t<T>>: stdex::naive_formatter {
+    auto format(net::ipv4_view_t<T> view, format_context& ctx) const {
+        return format_to(ctx.out(), "{} -> {}", view.src_addr(), view.dst_addr());
+    }
+};
