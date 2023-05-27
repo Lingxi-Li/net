@@ -16,6 +16,23 @@ struct ipv4_addr_view_t {
 
     T* data{};
 
+    operator std::uint32_t() const noexcept {
+        auto p = data;
+        auto u = std::uint32_t(0) | *p;
+        u = u << 8 | *++p;
+        u = u << 8 | *++p;
+        u = u << 8 | *++p;
+        return std::uint32_t(u);
+    }
+
+    void operator=(std::uint32_t addr) const noexcept {
+        auto p = data;
+        *p = byte_t(addr >> 24);
+        *++p = byte_t(addr >> 16);
+        *++p = byte_t(addr >> 8);
+        *++p = byte_t(addr);
+    }
+
     T& operator[](unsigned i) const noexcept {
         assert(i <= 3);
         return data[i];
