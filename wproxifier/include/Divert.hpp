@@ -93,13 +93,15 @@ inline void Check(BOOL res, Api api) {
     if (!res) throw Error(api);
 }
 
-inline void Check(HANDLE handle, Api api) {
-    if (handle == INVALID_HANDLE_VALUE) throw Error(api);
+inline HANDLE Check(HANDLE handle, Api api) {
+    return handle != INVALID_HANDLE_VALUE
+        ? handle
+        : throw Error(api);
 }
 
 template <typename T>
-void operator&(T res, Api api) {
-    Check(res, api);
+auto operator&(T res, Api api) {
+    return Check(res, api);
 }
 
 // F: void (net::ipv4_view, net::tcp_view, WINDIVERT_ADDRESS &, UINT64)
