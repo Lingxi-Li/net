@@ -29,6 +29,10 @@ TEST_CASE("ipv4_addr_view") {
     REQUIRE(str_via_format(view) == "93.184.216.34");
 }
 
+TEST_CASE("ipv4_addr") {
+    REQUIRE(ipv4_addr("93.184.216.34") == 0x5db8d822);
+}
+
 TEST_CASE("ipv4_view") {
     ipv4_const_view view{sample_ipv4_tcp_syn};
     REQUIRE(view.version() == 4);

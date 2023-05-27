@@ -5,6 +5,7 @@
 #include <stdex/format.hpp>
 
 #include <cassert>
+#include <cstdio>
 
 #include <type_traits>
 
@@ -46,6 +47,16 @@ using ipv4_addr_const_view = ipv4_addr_view_t<byte_t const>;
 template <typename T>
 std::ostream& operator<<(std::ostream& os, ipv4_addr_view_t<T> view) {
     return stdex::format_to(os, "{}", view);
+}
+
+inline std::uint32_t ipv4_addr(char const* str) noexcept {
+    unsigned a, b, c, d;
+    void(std::sscanf(str, "%u.%u.%u.%u", &a, &b, &c, &d));
+    auto v = std::uint32_t(0) | a;
+    v = v << 8 | b;
+    v = v << 8 | c;
+    v = v << 8 | d;
+    return std::uint32_t(v);
 }
 
 } // namespace net
