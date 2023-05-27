@@ -5,7 +5,6 @@
 #undef min
 #undef max
 
-#include <net/constants.hpp>
 #include <net/ipv4_view.hpp>
 #include <net/tcp_view.hpp>
 
@@ -20,8 +19,6 @@
 #include <vector>
 
 namespace dvt {
-
-inline constexpr UINT IP_MAX_LEN = net::mtu * 10;
 
 enum struct Api: DWORD {
     WinDivertOpen,
@@ -109,12 +106,12 @@ void operator&(T res, Api api) {
 // E: void (std::exception const&, UINT64) noexcept
 template <typename F, typename E>
 UINT64 RelayIpv4Tcp(HANDLE handle, F twiddle, E handleError) {
-    auto packet = std::make_unique<net::byte_t[]>(IP_MAX_LEN);
+    auto packet = std::make_unique<net::byte_t[]>(WINDIVERT_MTU_MAX);
     WINDIVERT_ADDRESS addr{};
     UINT64 i = 0;
     while (true) {
         try {
-            if (!WinDivertRecv(handle, packet.get(), IP_MAX_LEN, NULL, &addr)) {
+            if (!WinDivertRecv(handle, packet.get(), WINDIVERT_MTU_MAX, NULL, &addr)) {
                 auto error = GetLastError();
                 if (error == ERROR_NO_DATA) break;
                 throw Error(Api::WinDivertRecv, error);
@@ -122,7 +119,7 @@ UINT64 RelayIpv4Tcp(HANDLE handle, F twiddle, E handleError) {
             net::ipv4_view ip{packet.get()};
             net::tcp_view tcp{ip.payload()};
             twiddle(ip, tcp, addr, i);
-            WinDivertSend(handle, packet.get(), IP_MAX_LEN, NULL, &addr) & Api::WinDivertSend;
+            WinDivertSend(handle, packet.get(), WINDIVERT_MTU_MAX, NULL, &addr) & Api::WinDivertSend;
         }
         catch (std::exception const& ex) {
             handleError(ex, i);
