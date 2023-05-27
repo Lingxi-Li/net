@@ -13,9 +13,11 @@
   <ItemGroup>
     <ClCompile Include="format.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="scope.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\stdex\format.hpp" />
+    <ClInclude Include="..\include\stdex\scope.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

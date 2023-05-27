@@ -9,8 +9,13 @@
     <ClInclude Include="..\include\stdex\format.hpp">
       <Filter>stdex</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\stdex\scope.hpp">
+      <Filter>stdex</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="format.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="scope.cpp" />
   </ItemGroup>
 </Project>
