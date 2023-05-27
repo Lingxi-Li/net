@@ -5,16 +5,23 @@
 #undef min
 #undef max
 
+#include <net/constants.hpp>
+#include <net/ipv4_view.hpp>
+#include <net/tcp_view.hpp>
+
 #include <stdex/format.hpp>
 
 #include <format>
 #include <iterator>
+#include <memory>
 #include <ostream>
 #include <system_error>
 #include <type_traits>
 #include <vector>
 
 namespace dvt {
+
+inline constexpr UINT IP_MAX_LEN = net::mtu * 10;
 
 enum struct Api: DWORD {
     WinDivertOpen,
@@ -50,10 +57,10 @@ private:
 namespace dvt {
 
 struct Error: std::exception {
-    Error(Api api)
+    Error(Api api, DWORD code = GetLastError())
         : FailedApi(api)
-        , ErrorCode(GetLastError())
-        , Message(std::format("{}, 0x{:08X}: {}", FailedApi, ErrorCode, std::system_category().message(ErrorCode))) {
+        , ErrorCode(code)
+        , Message(std::format("{}, 0x{:08X}: {}", FailedApi, code, std::system_category().message(code))) {
     }
 
     char const* what() const noexcept override {
@@ -91,6 +98,38 @@ inline void Check(BOOL res, Api api) {
 
 inline void Check(HANDLE handle, Api api) {
     if (handle == INVALID_HANDLE_VALUE) throw Error(api);
+}
+
+template <typename T>
+void operator&(T res, Api api) {
+    Check(res, api);
+}
+
+// F: void (net::ipv4_view, net::tcp_view, WINDIVERT_ADDRESS &, UINT64)
+// E: void (std::exception const&, UINT64) noexcept
+template <typename F, typename E>
+UINT64 RelayIpv4Tcp(HANDLE handle, F twiddle, E handleError) {
+    auto packet = std::make_unique<net::byte_t[]>(IP_MAX_LEN);
+    WINDIVERT_ADDRESS addr{};
+    UINT64 i = 0;
+    while (true) {
+        try {
+            if (!WinDivertRecv(handle, packet.get(), IP_MAX_LEN, NULL, &addr)) {
+                auto error = GetLastError();
+                if (error == ERROR_NO_DATA) break;
+                throw Error(Api::WinDivertRecv, error);
+            }
+            net::ipv4_view ip{packet.get()};
+            net::tcp_view tcp{ip.payload()};
+            twiddle(ip, tcp, addr, i);
+            WinDivertSend(handle, packet.get(), IP_MAX_LEN, NULL, &addr) & Api::WinDivertSend;
+        }
+        catch (std::exception const& ex) {
+            handleError(ex, i);
+        }
+        ++i;
+    }
+    return i;
 }
 
 class Handle {
