@@ -16,6 +16,7 @@ TEST_CASE("tcp_view") {
     REQUIRE(tcp.seq_num() == 812484767);
     REQUIRE(tcp.ack_num() == 0);
     REQUIRE(tcp.header_len() == 8);
+    REQUIRE(tcp.flags() == 0x02);
     REQUIRE(tcp.ack() == 0);
     REQUIRE(tcp.psh() == 0);
     REQUIRE(tcp.rst() == 0);

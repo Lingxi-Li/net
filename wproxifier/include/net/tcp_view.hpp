@@ -34,6 +34,10 @@ struct tcp_view_t {
         return { data + 12 };
     }
 
+    uint_view_t<T, 1> flags() const noexcept {
+        return { data + 13 };
+    }
+
     bit_view_t<T, 3> ack() const noexcept {
         return { data + 13 };
     }
