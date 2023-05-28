@@ -104,6 +104,14 @@ auto operator&(T res, Api api) {
     return Check(res, api);
 }
 
+namespace flt {
+
+inline std::string RelateToIp(char const* ip) {
+    return std::format("(ip.SrcAddr == {0} || ip.DstAddr == {0})", ip);
+}
+
+} // namespace flt
+
 // F: void (net::ipv4_view, net::tcp_view, WINDIVERT_ADDRESS &, UINT64)
 // E: void (std::exception const&, UINT64) noexcept
 template <typename F, typename E>
