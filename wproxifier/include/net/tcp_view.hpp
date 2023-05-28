@@ -14,6 +14,10 @@ struct tcp_view_t {
 
     T* data;
 
+    operator T* () const noexcept {
+        return data;
+    }
+
     uint_view_t<T, 2> src_port() const noexcept {
         return { data };
     }

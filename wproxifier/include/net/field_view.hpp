@@ -31,6 +31,10 @@ struct uint_view_t {
 
     T* data{};
 
+    operator T* () const noexcept {
+        return data;
+    }
+
     operator uint_t() const noexcept {
         auto p = data;
         auto end = data + len;
@@ -73,6 +77,10 @@ struct uint_view_t<T, 1, hishf, loshf> {
     static_assert(hishf + loshf <= 7);
 
     T* data{};
+
+    operator T* () const noexcept {
+        return data;
+    }
 
     operator uint_t() const noexcept {
         return (*data & uint_mask) >> loshf;
@@ -123,6 +131,10 @@ struct flags_view_t {
     static_assert(mask < (std::uint64_t(1) << 1 << (len * 8 - hishf - loshf - 1)) - 1, "Use 'uint_view' for better perf");
     
     uint_view_t<T, len, hishf, loshf> data;
+
+    operator T* () const noexcept {
+        return data;
+    }
 
     operator std::uint64_t() const noexcept {
         return data.uint() & mask;

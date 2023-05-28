@@ -16,7 +16,7 @@ TEST_CASE("ipv4_addr_view") {
     REQUIRE(view[3] == 103);
     REQUIRE(str_via_ostream(view) == "192.168.2.103");
     REQUIRE(str_via_format(view) == "192.168.2.103");
-    REQUIRE(view == 0xc0a80267);
+    REQUIRE(ipv4_addr_const_view{ view } == 0xc0a80267);
     view[0] = 128;
     view[1] = 119;
     view[2] = 245;

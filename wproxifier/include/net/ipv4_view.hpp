@@ -17,6 +17,10 @@ struct ipv4_addr_view_t {
 
     T* data{};
 
+    operator T* () const noexcept {
+        return data;
+    }
+
     operator std::uint32_t() const noexcept {
         auto p = data;
         auto u = std::uint32_t(0) | *p;
@@ -80,6 +84,10 @@ struct ipv4_view_t {
     static_assert(std::is_same_v<T, byte_t> || std::is_same_v<T, byte_t const>);
 
     T* data{};
+
+    operator T* () const noexcept {
+        return data;
+    }
     
     uint_view_t<T, 1, 0, 4> version() const noexcept {
         return { data };
