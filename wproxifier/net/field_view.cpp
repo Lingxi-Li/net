@@ -92,3 +92,49 @@ TEST_CASE("uint_view") {
         }
     }
 }
+
+TEST_CASE("flags_view") {
+    SECTION("len 8, hishf 0, loshf 0, mask 0x8000000000000001") {
+        constexpr unsigned len = 8;
+        byte_vec vec(len, 0xff);
+        flags_view<len, 0, 0, 0x8000000000000001> flags{vec.data()};
+        REQUIRE(flags == 0x8000000000000001);
+        REQUIRE(str_via_format(flags) == "0x8000000000000001");
+        REQUIRE(str_via_ostream(flags) == "0x8000000000000001");
+        flags = 0;
+        REQUIRE(vec == byte_vec{ 0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe });
+        REQUIRE(flags.uint64() == 0);
+        REQUIRE(str_via_format(flags) == "0x0");
+        REQUIRE(str_via_ostream(flags) == "0x0");
+        flags = 0x8000000000000000;
+        REQUIRE(vec == byte_vec{ 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xfe });
+        REQUIRE(flags == 0x8000000000000000);
+        flags = 1;
+        REQUIRE(vec == byte_vec{ 0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff });
+        REQUIRE(flags == 1);
+    }
+    SECTION("len 3, hishf 4, loshf 4, mask 0x300c") {
+        constexpr unsigned len = 3;
+        byte_vec vec(len, 0xff);
+        flags_view<len, 4, 4, 0x300c> flags{vec.data()};
+        REQUIRE(flags == 0x300c);
+        flags = 0;
+        REQUIRE(vec == byte_vec{ 0xfc, 0xff, 0x3f });
+        REQUIRE(flags.uint64() == 0);
+        flags = 0x1008;
+        REQUIRE(vec == byte_vec{ 0xfd, 0xff, 0xbf });
+        REQUIRE(flags == 0x1008);
+    }
+    SECTION("len 1, hishf 0, loshf 0, mask 0x55") {
+        constexpr unsigned len = 1;
+        byte_t byte = 0xff;
+        flags_view<len, 0, 0, 0x55> flags{&byte};
+        REQUIRE(flags == 0x55);
+        flags = 0;
+        REQUIRE(byte == 0xaa);
+        REQUIRE(flags.uint64() == 0);
+        flags = 0x41;
+        REQUIRE(byte == 0xeb);
+        REQUIRE(flags == 0x41);
+    }
+}

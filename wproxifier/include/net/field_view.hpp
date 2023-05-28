@@ -1,9 +1,9 @@
 #pragma once
 
+#include <stdex/format.hpp>
+
 #include <cstdint>
 
-#include <format>
-#include <ostream>
 #include <type_traits>
 
 namespace net {
@@ -117,11 +117,50 @@ std::ostream& operator<<(std::ostream& os, uint_view_t<T, len, hishf, loshf> vie
     return os << uint_t(view);
 }
 
+template <typename T, unsigned len, unsigned hishf, unsigned loshf, std::uint64_t mask>
+struct flags_view_t {
+    static_assert(mask);
+    static_assert(mask < (std::uint64_t(1) << 1 << (len * 8 - hishf - loshf - 1)) - 1, "Use 'uint_view' for better perf");
+    
+    uint_view_t<T, len, hishf, loshf> data;
+
+    operator std::uint64_t() const noexcept {
+        return data.uint() & mask;
+    }
+
+    void operator=(std::uint64_t flags) const noexcept {
+        data = data.uint() & ~uint_t(mask) | flags;
+    }
+
+    std::uint64_t uint64() const noexcept {
+        return *this;
+    }
+};
+static_assert(std::is_aggregate_v<flags_view_t<byte_t, 1, 0, 0, 0x55>>);
+
+template <unsigned len, unsigned hishf, unsigned loshf, std::uint64_t mask>
+using flags_view = flags_view_t<byte_t, len, hishf, loshf, mask>;
+
+template <unsigned len, unsigned hishf, unsigned loshf, std::uint64_t mask>
+using flags_const_view = flags_view_t<byte_t const, len, hishf, loshf, mask>;
+
+template <typename T, unsigned len, unsigned hishf, unsigned loshf, std::uint64_t mask>
+std::ostream& operator<<(std::ostream& os, flags_view_t<T, len, hishf, loshf, mask> view) {
+    return stdex::format_to(os, "{}", view);
+}
+
 } // namespace net
 
 template <typename T, unsigned len, unsigned hishf, unsigned loshf>
 struct std::formatter<net::uint_view_t<T, len, hishf, loshf>>: formatter<net::uint_t> {
     auto format(net::uint_view_t<T, len, hishf, loshf> view, format_context& ctx) {
         return formatter<net::uint_t>::format(view, ctx);
+    }
+};
+
+template <typename T, unsigned len, unsigned hishf, unsigned loshf, std::uint64_t mask>
+struct std::formatter<net::flags_view_t<T, len, hishf, loshf, mask>>: stdex::naive_formatter {
+    auto format(net::flags_view_t<T, len, hishf, loshf, mask> view, format_context& ctx) const {
+        return format_to(ctx.out(), "{:#x}", view.uint64());
     }
 };
