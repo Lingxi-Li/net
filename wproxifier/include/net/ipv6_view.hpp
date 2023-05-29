@@ -31,14 +31,7 @@ using ipv6_addr_view = ipv6_addr_view_t<byte_t>;
 using ipv6_addr_const_view = ipv6_addr_view_t<byte_t const>;
 
 template <typename T>
-std::ostream& operator<<(std::ostream& os, ipv6_addr_view_t<T> view) {
-    return stdex::format_to(os, "{}", view);
-}
-
-} // namespace net
-
-template <typename T>
-struct std::formatter<net::ipv6_addr_view_t<T>>: stdex::naive_formatter {
+struct ::std::formatter<net::ipv6_addr_view_t<T>>: stdex::naive_formatter {
     auto format(net::ipv6_addr_view_t<T> view, format_context& ctx) const {
         return format_to(ctx.out(), "{:x}:{:x}:{:x}:{:x}:{:x}:{:x}:{:x}:{:x}"
             , unsigned(view[ 0]) << 8 | view[ 1]
@@ -53,7 +46,10 @@ struct std::formatter<net::ipv6_addr_view_t<T>>: stdex::naive_formatter {
     }
 };
 
-namespace net {
+template <typename T>
+std::ostream& operator<<(std::ostream& os, ipv6_addr_view_t<T> view) {
+    return stdex::format_to(os, "{}", view);
+}
 
 template <typename T>
 struct ipv6_view_t {

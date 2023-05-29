@@ -49,6 +49,18 @@ using ipv4_addr_view = ipv4_addr_view_t<byte_t>;
 using ipv4_addr_const_view = ipv4_addr_view_t<byte_t const>;
 
 template <typename T>
+struct ::std::formatter<net::ipv4_addr_view_t<T>>: stdex::naive_formatter {
+    auto format(net::ipv4_addr_view_t<T> view, format_context& ctx) const {
+        return format_to(ctx.out(), "{}.{}.{}.{}"
+            , unsigned(view[0])
+            , unsigned(view[1])
+            , unsigned(view[2])
+            , unsigned(view[3])
+        );
+    }
+};
+
+template <typename T>
 std::ostream& operator<<(std::ostream& os, ipv4_addr_view_t<T> view) {
     return stdex::format_to(os, "{}", view);
 }
@@ -62,22 +74,6 @@ inline std::uint32_t ipv4_addr(char const* str) noexcept {
     v = v << 8 | d;
     return std::uint32_t(v);
 }
-
-} // namespace net
-
-template <typename T>
-struct std::formatter<net::ipv4_addr_view_t<T>>: stdex::naive_formatter {
-    auto format(net::ipv4_addr_view_t<T> view, format_context& ctx) const {
-        return format_to(ctx.out(), "{}.{}.{}.{}"
-            , unsigned(view[0])
-            , unsigned(view[1])
-            , unsigned(view[2])
-            , unsigned(view[3])
-        );
-    }
-};
-
-namespace net {
 
 template <typename T>
 struct ipv4_view_t {
@@ -163,15 +159,15 @@ using ipv4_view = ipv4_view_t<byte_t>;
 using ipv4_const_view = ipv4_view_t<byte_t const>;
 
 template <typename T>
+struct ::std::formatter<net::ipv4_view_t<T>>: stdex::naive_formatter {
+    auto format(net::ipv4_view_t<T> view, format_context& ctx) const {
+        return format_to(ctx.out(), "{} -> {}", view.src_addr(), view.dst_addr());
+    }
+};
+
+template <typename T>
 std::ostream& operator<<(std::ostream& os, ipv4_view_t<T> view) {
     return stdex::format_to(os, "{}", view);
 }
 
 } // namespace net
-
-template <typename T>
-struct std::formatter<net::ipv4_view_t<T>>: stdex::naive_formatter {
-    auto format(net::ipv4_view_t<T> view, format_context& ctx) const {
-        return format_to(ctx.out(), "{} -> {}", view.src_addr(), view.dst_addr());
-    }
-};

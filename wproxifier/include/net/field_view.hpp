@@ -121,6 +121,13 @@ template <unsigned pos>
 using bit_const_view = bit_view_t<byte_t const, pos>;
 
 template <typename T, unsigned len, unsigned hishf, unsigned loshf>
+struct ::std::formatter<net::uint_view_t<T, len, hishf, loshf>>: formatter<net::uint_t> {
+    auto format(net::uint_view_t<T, len, hishf, loshf> view, format_context& ctx) {
+        return formatter<net::uint_t>::format(view, ctx);
+    }
+};
+
+template <typename T, unsigned len, unsigned hishf, unsigned loshf>
 std::ostream& operator<<(std::ostream& os, uint_view_t<T, len, hishf, loshf> view) {
     return os << uint_t(view);
 }
@@ -157,22 +164,15 @@ template <unsigned len, unsigned hishf, unsigned loshf, std::uint64_t mask>
 using flags_const_view = flags_view_t<byte_t const, len, hishf, loshf, mask>;
 
 template <typename T, unsigned len, unsigned hishf, unsigned loshf, std::uint64_t mask>
+struct ::std::formatter<net::flags_view_t<T, len, hishf, loshf, mask>>: stdex::naive_formatter {
+    auto format(net::flags_view_t<T, len, hishf, loshf, mask> view, format_context& ctx) const {
+        return format_to(ctx.out(), "{:#x}", view.uint64());
+    }
+};
+
+template <typename T, unsigned len, unsigned hishf, unsigned loshf, std::uint64_t mask>
 std::ostream& operator<<(std::ostream& os, flags_view_t<T, len, hishf, loshf, mask> view) {
     return stdex::format_to(os, "{}", view);
 }
 
 } // namespace net
-
-template <typename T, unsigned len, unsigned hishf, unsigned loshf>
-struct std::formatter<net::uint_view_t<T, len, hishf, loshf>>: formatter<net::uint_t> {
-    auto format(net::uint_view_t<T, len, hishf, loshf> view, format_context& ctx) {
-        return formatter<net::uint_t>::format(view, ctx);
-    }
-};
-
-template <typename T, unsigned len, unsigned hishf, unsigned loshf, std::uint64_t mask>
-struct std::formatter<net::flags_view_t<T, len, hishf, loshf, mask>>: stdex::naive_formatter {
-    auto format(net::flags_view_t<T, len, hishf, loshf, mask> view, format_context& ctx) const {
-        return format_to(ctx.out(), "{:#x}", view.uint64());
-    }
-};
