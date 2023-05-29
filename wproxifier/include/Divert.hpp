@@ -112,7 +112,7 @@ inline std::string RelateToIp(char const* ip) {
 
 } // namespace flt
 
-// F: void (net::ipv4_view, net::tcp_view, WINDIVERT_ADDRESS &, UINT64)
+// F: BOOL (net::ipv4_view, net::tcp_view, WINDIVERT_ADDRESS &, UINT64)
 // E: void (std::exception const&, UINT64) noexcept
 template <typename F, typename E>
 UINT64 RelayIpv4Tcp(HANDLE handle, F twiddle, E handleError) {
@@ -128,7 +128,10 @@ UINT64 RelayIpv4Tcp(HANDLE handle, F twiddle, E handleError) {
             }
             net::ipv4_view ip{packet.get()};
             net::tcp_view tcp{ip.payload()};
-            twiddle(ip, tcp, addr, i);
+            if (twiddle(ip, tcp, addr, i)) {
+                // modified
+                WinDivertHelperCalcChecksums(ip, WINDIVERT_MTU_MAX, &addr, 0);
+            }
             WinDivertSend(handle, packet.get(), WINDIVERT_MTU_MAX, NULL, &addr) & Api::WinDivertSend;
         }
         catch (std::exception const& ex) {
