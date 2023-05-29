@@ -31,27 +31,6 @@ using ipv6_addr_view = ipv6_addr_view_t<byte_t>;
 using ipv6_addr_const_view = ipv6_addr_view_t<byte_t const>;
 
 template <typename T>
-struct ::std::formatter<net::ipv6_addr_view_t<T>>: stdex::naive_formatter {
-    auto format(net::ipv6_addr_view_t<T> view, format_context& ctx) const {
-        return format_to(ctx.out(), "{:x}:{:x}:{:x}:{:x}:{:x}:{:x}:{:x}:{:x}"
-            , unsigned(view[ 0]) << 8 | view[ 1]
-            , unsigned(view[ 2]) << 8 | view[ 3]
-            , unsigned(view[ 4]) << 8 | view[ 5]
-            , unsigned(view[ 6]) << 8 | view[ 7]
-            , unsigned(view[ 8]) << 8 | view[ 9]
-            , unsigned(view[10]) << 8 | view[11]
-            , unsigned(view[12]) << 8 | view[13]
-            , unsigned(view[14]) << 8 | view[15]
-        );
-    }
-};
-
-template <typename T>
-std::ostream& operator<<(std::ostream& os, ipv6_addr_view_t<T> view) {
-    return stdex::format_to(os, "{}", view);
-}
-
-template <typename T>
 struct ipv6_view_t {
     static_assert(std::is_same_v<T, byte_t> || std::is_same_v<T, byte_t const>);
 
@@ -105,5 +84,30 @@ static_assert(std::is_aggregate_v<ipv6_view_t<byte_t>>);
 
 using ipv6_view = ipv6_view_t<byte_t>;
 using ipv6_const_view = ipv6_view_t<byte_t const>;
+
+} // namespace net
+
+template <typename T>
+struct std::formatter<net::ipv6_addr_view_t<T>>: stdex::naive_formatter {
+    auto format(net::ipv6_addr_view_t<T> view, format_context& ctx) const {
+        return format_to(ctx.out(), "{:x}:{:x}:{:x}:{:x}:{:x}:{:x}:{:x}:{:x}"
+            , unsigned(view[ 0]) << 8 | view[ 1]
+            , unsigned(view[ 2]) << 8 | view[ 3]
+            , unsigned(view[ 4]) << 8 | view[ 5]
+            , unsigned(view[ 6]) << 8 | view[ 7]
+            , unsigned(view[ 8]) << 8 | view[ 9]
+            , unsigned(view[10]) << 8 | view[11]
+            , unsigned(view[12]) << 8 | view[13]
+            , unsigned(view[14]) << 8 | view[15]
+        );
+    }
+};
+
+namespace net {
+
+template <typename T>
+std::ostream& operator<<(std::ostream& os, ipv6_addr_view_t<T> view) {
+    return stdex::format_to(os, "{}", view);
+}
 
 } // namespace net

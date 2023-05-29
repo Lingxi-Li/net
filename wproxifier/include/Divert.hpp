@@ -28,31 +28,6 @@ enum struct Api: DWORD {
     WinDivertSend
 };
 
-inline std::ostream& operator<<(std::ostream& os, Api api) {
-    std::format_to(std::ostream_iterator<char>(os), "{}", api);
-    return os;
-}
-
-} // namespace dvt
-
-template <>
-struct std::formatter<dvt::Api>: formatter<char const*> {
-    auto format(dvt::Api api, format_context& ctx) {
-        return formatter<char const*>::format(StrRep[DWORD(api)], ctx);
-    }
-
-private:
-    constexpr static char const* StrRep[] = {
-        "WinDivertOpen",
-        "WinDivertClose",
-        "WinDivertShutdown",
-        "WinDivertRecv",
-        "WinDivertSend"
-    };
-};
-
-namespace dvt {
-
 struct Error: std::exception {
     Error(Api api, DWORD code = GetLastError())
         : FailedApi(api)
@@ -68,21 +43,6 @@ struct Error: std::exception {
     DWORD ErrorCode;
     std::string Message;
 };
-
-inline std::ostream& operator<<(std::ostream& os, Error const& err) {
-    return os << err.Message;
-}
-
-} // namespace dvt
-
-template <>
-struct std::formatter<dvt::Error>: formatter<string> {
-    auto format(dvt::Error const& err, format_context& ctx) {
-        return formatter<string>::format(err.Message, ctx);
-    }
-};
-
-namespace dvt {
 
 static_assert(std::is_aggregate_v<WINDIVERT_ADDRESS>);
 
@@ -229,24 +189,13 @@ private:
     HANDLE handle{INVALID_HANDLE_VALUE};
 };
 
-inline std::ostream& operator<<(std::ostream& os, Handle const& hdl) {
-    return os << HANDLE(hdl);
-}
-
 } // namespace dvt
-
-template <>
-struct std::formatter<dvt::Handle>: formatter<void*> {
-    auto format(dvt::Handle const& hdl, format_context& ctx) {
-        return formatter<void*>::format(HANDLE(hdl), ctx);
-    }
-};
 
 //////////////////// output ////////////////////
 
 template <>
 struct std::formatter<WINDIVERT_LAYER>: formatter<char const*> {
-    auto format(WINDIVERT_LAYER layer, format_context& ctx) {
+    auto format(WINDIVERT_LAYER layer, format_context& ctx) const {
         return formatter<char const*>::format(StrRep[layer], ctx);
     }
 
@@ -260,9 +209,56 @@ private:
     };
 };
 
+template <>
+struct std::formatter<dvt::Api>: formatter<char const*> {
+    auto format(dvt::Api api, format_context& ctx) const {
+        return formatter<char const*>::format(StrRep[DWORD(api)], ctx);
+    }
+
+private:
+    constexpr static char const* StrRep[] = {
+        "WinDivertOpen",
+        "WinDivertClose",
+        "WinDivertShutdown",
+        "WinDivertRecv",
+        "WinDivertSend"
+    };
+};
+
+template <>
+struct std::formatter<dvt::Error>: formatter<string> {
+    auto format(dvt::Error const& err, format_context& ctx) const {
+        return formatter<string>::format(err.Message, ctx);
+    }
+};
+
+template <>
+struct std::formatter<dvt::Handle>: formatter<void*> {
+    auto format(dvt::Handle const& hdl, format_context& ctx) const {
+        return formatter<void*>::format(HANDLE(hdl), ctx);
+    }
+};
+
 inline std::ostream& operator<<(std::ostream& os, WINDIVERT_LAYER layer) {
     return stdex::format_to(os, "{}", layer);
 }
+
+namespace dvt {
+
+inline std::ostream& operator<<(std::ostream& os, Api api) {
+    std::format_to(std::ostream_iterator<char>(os), "{}", api);
+    return os;
+}
+
+inline std::ostream& operator<<(std::ostream& os, Error const& err) {
+    return os << err.Message;
+}
+
+inline std::ostream& operator<<(std::ostream& os, Handle const& hdl) {
+    return os << HANDLE(hdl);
+}
+
+} // namespace dvt
 
 inline std::ostream& operator<<(std::ostream& os, WINDIVERT_ADDRESS const& addr) {
     auto layer = WINDIVERT_LAYER(addr.Layer);
