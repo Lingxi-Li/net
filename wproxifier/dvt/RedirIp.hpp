@@ -11,7 +11,126 @@
 #include <cstring>
 #include <future>
 #include <iostream>
+#include <memory>
+#include <stdexcept>
 #include <type_traits>
+
+struct RedirIp {
+    RedirIp(
+          char const* localIp
+        , char const* originalRemoteIp
+        , char const* redirRemoteIp
+    )
+        : connections(std::make_unique<Connection[]>(65536))
+        , filter(dvt::flt::RelateToIp(localIp) + " && tcp && !loopback")
+        , localIp(net::ipv4_addr(localIp))
+        , originalRemoteIp(net::ipv4_addr(originalRemoteIp))
+        , redirRemoteIp(net::ipv4_addr(redirRemoteIp))
+        , handle(INVALID_HANDLE_VALUE) {
+    }
+
+    void Start() {
+        handle = WinDivertOpen(filter.c_str(), WINDIVERT_LAYER_NETWORK, 0, 0) & dvt::Api::WinDivertOpen;
+    }
+
+    struct Connection {
+        char const* State{};
+        BOOL Outbound{};
+
+        operator bool() const noexcept {
+            return State != NULL;
+        }
+
+        bool operator==(Connection const& other) const noexcept {
+            return State == other.State && Outbound == other.Outbound;
+        }
+
+        bool operator!=(Connection const& other) const noexcept {
+            return !(*this == other);
+        }
+    };
+
+private:
+    struct State {
+        constexpr static char Syn[] = "[SYN]";
+        constexpr static char SynAck[] = "[SYN ACK]";
+        constexpr static char FinAck[] = "[FIN ACK]";
+        constexpr static char Ack[] = "[ACK]";
+    };
+
+    BOOL Twiddle(net::ipv4_view ip, net::tcp_view tcp, WINDIVERT_ADDRESS& addr, UINT64) {
+        constexpr UINT MASK = 0x17;
+        constexpr UINT SYN = 0x02;
+        constexpr UINT SYN_ACK = 0x12;
+        constexpr UINT FIN_ACK = 0x11;
+        constexpr UINT ACK = 0x10;
+
+        std::uint32_t srcIp = ip.src_addr();
+        UINT flags = UINT(tcp.flags().uint()) & MASK;
+        if (srcIp == localIp) {
+            // outbound
+            auto localPort = UINT(tcp.src_port());
+            auto& conn = connections[localPort];
+            switch (flags) {
+                case SYN: // connect to remote IP
+                    if (ip.dst_addr() != originalRemoteIp) {
+                        return FALSE; // not interested
+                    }
+                    if (conn) {
+                        // drop and log problematic packet
+                        auto what = std::format("-> [SYN] conflicts with {}", conn);
+                        throw std::logic_error(what);
+                    }
+                    conn = Connection{ State::Syn, TRUE }; // register connection
+                    ip.dst_addr() = redirRemoteIp; // redir
+                    return TRUE;
+                case ACK:
+                    if (!conn) return FALSE; // not interested
+
+                    
+                    
+            }
+        }
+        else {
+            // inbound
+            auto localPort = UINT(tcp.dst_port());
+            auto& conn = connections[localPort];
+            if (!conn) {
+                // connection not tracked
+                return FALSE;
+            }
+            switch (flags) {
+                case SYN_ACK:
+                    if (conn != Connection{ State::Syn, TRUE }) {
+                        auto what = std::format("<- [SYN ACK] conflicts with {}", conn);
+                        throw std::logic_error(what);
+                    }
+                    conn = Connection{ State::SynAck, FALSE };
+                    ip.src_addr() = originalRemoteIp;
+                    return TRUE;
+            }
+        }
+    }
+
+    std::unique_ptr<Connection[]> connections;
+    std::string filter;
+    UINT32 localIp;
+    UINT32 originalRemoteIp;
+    UINT32 redirRemoteIp;
+    HANDLE handle;
+    std::future<UINT64> future;
+};
+
+template <>
+struct std::formatter<RedirIp::Connection>: stdex::naive_formatter {
+    auto format(RedirIp::Connection const& conn, format_context& ctx) const {
+        return format_to(ctx.out(), "{} {}",
+            conn.Outbound ? "->" : "<-",
+            conn.State);
+    }
+};
+
+////////////////////////////////////////
 
 inline constexpr UINT MTU = net::mtu * 10;
 
@@ -106,7 +225,7 @@ inline void Listen() {
 
     constexpr char filter[] =
         "ip"
-        " && tcp.Syn"
+        " && (tcp.Syn && !tcp.Ack)"
         ;
     auto handle = WinDivertOpen(filter, WINDIVERT_LAYER_NETWORK, 0, 0);
     dvt::Check(handle, dvt::Api::WinDivertOpen);
@@ -117,6 +236,7 @@ inline void Listen() {
         net::ipv4_view ip{packet};
         net::tcp_view tcp{ip.payload()};
 
+        
         if (tcp.ack()) {
             // SYN ACK
             auto clientPort = ClientPort({ ip.data });

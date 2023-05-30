@@ -1,6 +1,6 @@
 #include "Passthru.hpp"
 #include "RedirPort.hpp"
-#include "Proxifier.hpp"
+#include "RedirIp.hpp"
 
 #include <iostream>
 #include <string>
@@ -16,7 +16,7 @@ void PlayPassthru() {
 
 int main() {
     try {
-        Proxify();
+        
     }
     catch (std::exception const& err) {
         std::cout << err.what() << '\n';

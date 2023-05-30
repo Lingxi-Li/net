@@ -17,7 +17,7 @@
   <ItemGroup>
     <ClInclude Include="..\include\Divert.hpp" />
     <ClInclude Include="Passthru.hpp" />
-    <ClInclude Include="Proxifier.hpp" />
+    <ClInclude Include="RedirIp.hpp" />
     <ClInclude Include="RedirPort.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
