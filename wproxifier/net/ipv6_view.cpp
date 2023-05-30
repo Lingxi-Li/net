@@ -4,9 +4,6 @@
 #include <test_utility.hpp>
 #include "sample_packet.hpp"
 
-using namespace std;
-using namespace net;
-
 TEST_CASE("ipv6_addr_view") {
     byte_vec vec{ 
         0x26, 0x00, 0x14, 0x13,
@@ -14,8 +11,8 @@ TEST_CASE("ipv6_addr_view") {
         0x00, 0x00, 0x00, 0x00,
         0x17, 0xd1, 0x2e, 0x96 
     };
-    ipv6_addr_view view{vec.data()};
-    REQUIRE(str_via_ostream(ipv6_addr_const_view{ view }) == "2600:1413:b000:1d:0:0:17d1:2e96");
+    net::ipv6_addr_view view{vec.data()};
+    REQUIRE(str_via_ostream(net::ipv6_addr_const_view{ view }) == "2600:1413:b000:1d:0:0:17d1:2e96");
     REQUIRE(str_via_format(view) == "2600:1413:b000:1d:0:0:17d1:2e96");
     view[0] = 0;
     REQUIRE(vec[0] == 0);
@@ -26,7 +23,7 @@ TEST_CASE("ipv6_addr_view") {
 }
 
 TEST_CASE("ipv6_view") {
-    ipv6_const_view view{sample_ipv6_udp_dns_query_a};
+    net::ipv6_const_view view{sample_ipv6_udp_dns_query_a};
     REQUIRE(view.version() == 6);
     REQUIRE(view.diff_serv() == 0);
     REQUIRE(view.ecn() == 0);

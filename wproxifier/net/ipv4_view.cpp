@@ -4,19 +4,16 @@
 #include <test_utility.hpp>
 #include "sample_packet.hpp"
 
-using namespace std;
-using namespace net;
-
 TEST_CASE("ipv4_addr_view") {
     byte_vec vec{ 192, 168, 2, 103 };
-    ipv4_addr_view view{vec.data()};
+    net::ipv4_addr_view view{vec.data()};
     REQUIRE(view[0] == 192);
     REQUIRE(view[1] == 168);
     REQUIRE(view[2] == 2);
     REQUIRE(view[3] == 103);
     REQUIRE(str_via_ostream(view) == "192.168.2.103");
     REQUIRE(str_via_format(view) == "192.168.2.103");
-    REQUIRE(ipv4_addr_const_view{ view } == 0xc0a80267);
+    REQUIRE(net::ipv4_addr_const_view{ view } == 0xc0a80267);
     view[0] = 128;
     view[1] = 119;
     view[2] = 245;
@@ -30,11 +27,11 @@ TEST_CASE("ipv4_addr_view") {
 }
 
 TEST_CASE("ipv4_addr") {
-    REQUIRE(ipv4_addr("93.184.216.34") == 0x5db8d822);
+    REQUIRE(net::ipv4_addr("93.184.216.34") == 0x5db8d822);
 }
 
 TEST_CASE("ipv4_view") {
-    ipv4_const_view view{sample_ipv4_tcp_syn};
+    net::ipv4_const_view view{sample_ipv4_tcp_syn};
     REQUIRE(view.version() == 4);
     REQUIRE(view.header_len() == 5);
     REQUIRE(view.diff_serv() == 0);
@@ -50,7 +47,7 @@ TEST_CASE("ipv4_view") {
     REQUIRE(str_via_format(view.src_addr()) == "192.168.2.103");
     REQUIRE(str_via_format(view.dst_addr()) == "128.119.245.12");
     REQUIRE(view.options() == view.payload());
-    REQUIRE(view.end() == view.data + sizeof(sample_ipv4_tcp_syn));
+    REQUIRE(view.end() == sample_ipv4_tcp_syn + sizeof(sample_ipv4_tcp_syn));
     REQUIRE(str_via_ostream(view) == "192.168.2.103 -> 128.119.245.12");
     REQUIRE(str_via_format(view) == "192.168.2.103 -> 128.119.245.12");
 }

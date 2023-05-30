@@ -5,12 +5,10 @@
 #include <test_utility.hpp>
 #include "sample_packet.hpp"
 
-using namespace net;
-
 TEST_CASE("tcp_view") {
-    ipv4_const_view ip{sample_ipv4_tcp_syn};
+    net::ipv4_const_view ip{sample_ipv4_tcp_syn};
     REQUIRE(ip.protocol() == 6);
-    tcp_const_view tcp{ip.payload()};
+    net::tcp_const_view tcp{ip.payload()};
     REQUIRE(tcp.src_port() == 54594);
     REQUIRE(tcp.dst_port() == 80);
     REQUIRE(tcp.seq_num() == 812484767);
