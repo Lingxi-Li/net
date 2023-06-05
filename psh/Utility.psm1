@@ -51,3 +51,8 @@ function DisableSysProxy() {
         $null = Set-ItemProperty -Path $RegPath -Name "ProxyEnable" -Value 0 -Type DWord -Force
     }
 }
+
+function DisableWpad() {
+    $KeyPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\WinHttp"
+    $null = Set-ItemProperty -Path $KeyPath -Name "DisableWpad" -Type DWord -Value 1 -Force
+}
